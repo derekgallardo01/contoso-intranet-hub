@@ -1,0 +1,284 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/sp/site-design-script-actions.schema.json",
+  "actions": [
+    {
+      "verb": "createSPList",
+      "listName": "Tasks",
+      "templateType": 171,
+      "subactions": [
+        {
+          "verb": "setDescription",
+          "description": "Project tasks with assignments, due dates, and priority tracking."
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "User",
+          "displayName": "Assigned To",
+          "internalName": "TaskAssignedTo",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "DateTime",
+          "displayName": "Due Date",
+          "internalName": "TaskDueDate",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Choice",
+          "displayName": "Priority",
+          "internalName": "TaskPriority",
+          "isRequired": false,
+          "choices": [
+            "Critical",
+            "High",
+            "Normal",
+            "Low"
+          ]
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Choice",
+          "displayName": "Task Status",
+          "internalName": "TaskStatus",
+          "isRequired": false,
+          "choices": [
+            "Not Started",
+            "In Progress",
+            "Blocked",
+            "Completed"
+          ]
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Number",
+          "displayName": "Percent Complete",
+          "internalName": "TaskPercentComplete",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Note",
+          "displayName": "Notes",
+          "internalName": "TaskNotes",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPView",
+          "name": "Active Tasks",
+          "viewFields": [
+            "Title",
+            "TaskAssignedTo",
+            "TaskDueDate",
+            "TaskPriority",
+            "TaskStatus",
+            "TaskPercentComplete"
+          ],
+          "query": "<Where><Neq><FieldRef Name='TaskStatus'/><Value Type='Choice'>Completed</Value></Neq></Where>",
+          "rowLimit": 50,
+          "isPaged": true,
+          "makeDefault": true
+        },
+        {
+          "verb": "addSPView",
+          "name": "My Tasks",
+          "viewFields": [
+            "Title",
+            "TaskDueDate",
+            "TaskPriority",
+            "TaskStatus",
+            "TaskPercentComplete"
+          ],
+          "query": "<Where><Eq><FieldRef Name='TaskAssignedTo'/><Value Type='Integer'><UserID/></Value></Eq></Where>",
+          "rowLimit": 50,
+          "isPaged": true,
+          "makeDefault": false
+        }
+      ]
+    },
+    {
+      "verb": "createSPList",
+      "listName": "Milestones",
+      "templateType": 100,
+      "subactions": [
+        {
+          "verb": "setDescription",
+          "description": "Key project milestones with target dates and completion tracking."
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "DateTime",
+          "displayName": "Target Date",
+          "internalName": "MilestoneTargetDate",
+          "isRequired": true
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "DateTime",
+          "displayName": "Actual Date",
+          "internalName": "MilestoneActualDate",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Choice",
+          "displayName": "Milestone Status",
+          "internalName": "MilestoneStatus",
+          "isRequired": true,
+          "choices": [
+            "Upcoming",
+            "On Track",
+            "At Risk",
+            "Delayed",
+            "Completed"
+          ]
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "User",
+          "displayName": "Owner",
+          "internalName": "MilestoneOwner",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Note",
+          "displayName": "Description",
+          "internalName": "MilestoneDescription",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPView",
+          "name": "All Milestones",
+          "viewFields": [
+            "Title",
+            "MilestoneTargetDate",
+            "MilestoneActualDate",
+            "MilestoneStatus",
+            "MilestoneOwner"
+          ],
+          "query": "<OrderBy><FieldRef Name='MilestoneTargetDate' Ascending='TRUE'/></OrderBy>",
+          "rowLimit": 100,
+          "isPaged": true,
+          "makeDefault": true
+        }
+      ]
+    },
+    {
+      "verb": "createSPList",
+      "listName": "Risks",
+      "templateType": 100,
+      "subactions": [
+        {
+          "verb": "setDescription",
+          "description": "Project risk register with impact assessment and mitigation tracking."
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Choice",
+          "displayName": "Probability",
+          "internalName": "RiskProbability",
+          "isRequired": true,
+          "choices": [
+            "Very Low",
+            "Low",
+            "Medium",
+            "High",
+            "Very High"
+          ]
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Choice",
+          "displayName": "Impact",
+          "internalName": "RiskImpact",
+          "isRequired": true,
+          "choices": [
+            "Negligible",
+            "Minor",
+            "Moderate",
+            "Major",
+            "Severe"
+          ]
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Choice",
+          "displayName": "Risk Status",
+          "internalName": "RiskStatus",
+          "isRequired": true,
+          "choices": [
+            "Identified",
+            "Analyzing",
+            "Mitigating",
+            "Accepted",
+            "Closed"
+          ]
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "User",
+          "displayName": "Risk Owner",
+          "internalName": "RiskOwner",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Note",
+          "displayName": "Mitigation Plan",
+          "internalName": "RiskMitigationPlan",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "Note",
+          "displayName": "Description",
+          "internalName": "RiskDescription",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPField",
+          "fieldType": "DateTime",
+          "displayName": "Identified Date",
+          "internalName": "RiskIdentifiedDate",
+          "isRequired": false
+        },
+        {
+          "verb": "addSPView",
+          "name": "Active Risks",
+          "viewFields": [
+            "Title",
+            "RiskProbability",
+            "RiskImpact",
+            "RiskStatus",
+            "RiskOwner"
+          ],
+          "query": "<Where><Neq><FieldRef Name='RiskStatus'/><Value Type='Choice'>Closed</Value></Neq></Where><OrderBy><FieldRef Name='RiskImpact' Ascending='FALSE'/></OrderBy>",
+          "rowLimit": 50,
+          "isPaged": true,
+          "makeDefault": true
+        }
+      ]
+    },
+    {
+      "verb": "addNavLink",
+      "url": "Lists/Tasks",
+      "displayName": "Tasks",
+      "isWebRelative": true
+    },
+    {
+      "verb": "addNavLink",
+      "url": "Lists/Milestones",
+      "displayName": "Milestones",
+      "isWebRelative": true
+    },
+    {
+      "verb": "addNavLink",
+      "url": "Lists/Risks",
+      "displayName": "Risks",
+      "isWebRelative": true
+    }
+  ],
+  "version": 1
+}

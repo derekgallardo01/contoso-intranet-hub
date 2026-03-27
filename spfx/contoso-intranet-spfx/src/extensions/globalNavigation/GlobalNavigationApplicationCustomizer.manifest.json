@@ -1,0 +1,21 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/command-set-extension-manifest.schema.json",
+  "id": "a2b5c6d7-e8f9-0a12-3456-789012abcde3",
+  "alias": "GlobalNavigationApplicationCustomizer",
+  "componentType": "Extension",
+  "extensionType": "ApplicationCustomizer",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "preconfiguredEntries": [
+    {
+      "title": { "default": "Global Navigation" },
+      "description": { "default": "Mega menu navigation application customizer" },
+      "officeFabricIconFontName": "GlobalNavButton",
+      "properties": {
+        "siteUrl": "",
+        "listName": "Navigation"
+      }
+    }
+  ]
+}

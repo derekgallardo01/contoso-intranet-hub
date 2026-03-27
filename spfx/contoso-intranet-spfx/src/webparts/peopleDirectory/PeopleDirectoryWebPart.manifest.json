@@ -1,0 +1,26 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "d9e2f3a4-b5c6-7d89-0123-456789abcde0",
+  "alias": "PeopleDirectoryWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": [
+    "SharePointWebPart",
+    "TeamsPersonalApp",
+    "TeamsTab"
+  ],
+  "preconfiguredEntries": [
+    {
+      "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+      "group": { "default": "Contoso Intranet" },
+      "title": { "default": "People Directory" },
+      "description": { "default": "Employee directory with search, presence, and profile details" },
+      "officeFabricIconFontName": "People",
+      "properties": {
+        "showPresence": true
+      }
+    }
+  ]
+}

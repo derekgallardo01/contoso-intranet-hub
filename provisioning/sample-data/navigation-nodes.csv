@@ -1,0 +1,17 @@
+Title,Url,Parent,Order,OpenInNewTab
+Departments,,_ROOT_,1,0
+Human Resources,/sites/contoso-docs/PolicyDocuments?FilterField1=ContosoDepartment&FilterValue1=Human%20Resources,Departments,1,0
+Finance,/sites/contoso-docs/PolicyDocuments?FilterField1=ContosoDepartment&FilterValue1=Finance,Departments,2,0
+Information Technology,/sites/contoso-docs/PolicyDocuments?FilterField1=ContosoDepartment&FilterValue1=Information%20Technology,Departments,3,0
+Legal,/sites/contoso-docs/PolicyDocuments?FilterField1=ContosoDepartment&FilterValue1=Legal,Departments,4,0
+Marketing,/sites/contoso-docs/PolicyDocuments?FilterField1=ContosoDepartment&FilterValue1=Marketing,Departments,5,0
+Operations,/sites/contoso-docs/PolicyDocuments?FilterField1=ContosoDepartment&FilterValue1=Operations,Departments,6,0
+Quick Links,,_ROOT_,2,0
+Employee Handbook,/sites/contoso-docs/PolicyDocuments/POL-0001-Information-Security-Policy.docx,Quick Links,1,0
+Expense Report,/sites/contoso-knowledge/SitePages/how-to-submit-expense-report.aspx,Quick Links,2,0
+Time Off Request,https://contoso.service-now.com/hr/timeoff,Quick Links,3,1
+Resources,,_ROOT_,3,0
+IT Service Portal,https://contoso.service-now.com,Resources,1,1
+Training Calendar,/sites/contoso-knowledge/SitePages/it-service-catalog.aspx,Resources,2,0
+Company Directory,https://contoso.sharepoint.com/_layouts/15/people.aspx,Resources,3,0
+Brand Guidelines,/sites/contoso-knowledge/SitePages/brand-guidelines-quick-reference.aspx,Resources,4,0

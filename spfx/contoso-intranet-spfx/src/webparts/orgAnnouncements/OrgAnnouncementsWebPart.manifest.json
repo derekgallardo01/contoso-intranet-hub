@@ -1,0 +1,28 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "c8f1a2b3-d4e5-6f78-9012-345678abcdef",
+  "alias": "OrgAnnouncementsWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": [
+    "SharePointWebPart",
+    "TeamsPersonalApp",
+    "TeamsTab"
+  ],
+  "preconfiguredEntries": [
+    {
+      "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+      "group": { "default": "Contoso Intranet" },
+      "title": { "default": "Org Announcements" },
+      "description": { "default": "Displays organizational announcements from a SharePoint list" },
+      "officeFabricIconFontName": "Megaphone",
+      "properties": {
+        "siteUrl": "",
+        "listName": "Announcements",
+        "maxItems": 10
+      }
+    }
+  ]
+}

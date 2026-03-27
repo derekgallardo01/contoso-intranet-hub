@@ -1,0 +1,79 @@
+# SPFx build output
+lib/
+dist/
+temp/
+release/
+sharepoint/solution/
+*.sppkg
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.pnp.*
+
+# TypeScript
+*.js.map
+*.tsbuildinfo
+
+# IDE
+.vs/
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# PowerShell
+*.psm1.bak
+*.ps1.bak
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pfx
+*.cer
+*.pem
+credentials.json
+client-secret.txt
+
+# Logs
+logs/
+*.log
+
+# Deploy artifacts
+deploy-*.zip
+deploy-out/
+
+# Office temp files
+~$*
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Gulp
+.gulp-*
+
+# Rush (if used)
+common/temp/

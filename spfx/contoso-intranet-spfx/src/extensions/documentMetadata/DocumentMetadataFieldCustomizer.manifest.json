@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/command-set-extension-manifest.schema.json",
+  "id": "c4d7e8f9-a0b1-2c34-5678-901234abcde5",
+  "alias": "DocumentMetadataFieldCustomizer",
+  "componentType": "Extension",
+  "extensionType": "FieldCustomizer",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "preconfiguredEntries": [
+    {
+      "title": { "default": "Document Metadata" },
+      "description": { "default": "Color-coded classification badge for document libraries" },
+      "officeFabricIconFontName": "Tag",
+      "properties": {}
+    }
+  ]
+}

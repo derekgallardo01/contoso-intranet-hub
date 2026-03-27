@@ -1,0 +1,27 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/command-set-extension-manifest.schema.json",
+  "id": "d5e8f9a0-b1c2-3d45-6789-012345abcde6",
+  "alias": "SendForApprovalCommandSet",
+  "componentType": "Extension",
+  "extensionType": "ListViewCommandSet",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "items": {
+    "SEND_FOR_APPROVAL": {
+      "title": { "default": "Send for Approval" },
+      "iconImageUrl": "",
+      "type": "command"
+    }
+  },
+  "preconfiguredEntries": [
+    {
+      "title": { "default": "Send For Approval" },
+      "description": { "default": "Send selected document for approval workflow" },
+      "officeFabricIconFontName": "MailForward",
+      "properties": {
+        "approvalFlowUrl": ""
+      }
+    }
+  ]
+}

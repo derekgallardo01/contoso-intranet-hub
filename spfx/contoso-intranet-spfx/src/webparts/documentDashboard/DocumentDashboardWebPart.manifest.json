@@ -1,0 +1,26 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "e0f3a4b5-c6d7-8e90-1234-567890abcde1",
+  "alias": "DocumentDashboardWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": [
+    "SharePointWebPart",
+    "TeamsPersonalApp",
+    "TeamsTab"
+  ],
+  "preconfiguredEntries": [
+    {
+      "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+      "group": { "default": "Contoso Intranet" },
+      "title": { "default": "Document Dashboard" },
+      "description": { "default": "Search and manage documents with classification and metadata" },
+      "officeFabricIconFontName": "DocumentSet",
+      "properties": {
+        "searchScope": ""
+      }
+    }
+  ]
+}

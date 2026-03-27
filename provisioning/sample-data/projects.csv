@@ -1,0 +1,9 @@
+Title,Status,Department,StartDate,EndDate,Owner,Description
+Intranet Modernization,Active,Information Technology,2026-01-15,2026-06-30,David Chen,"Migrate the corporate intranet from SharePoint 2019 on-premises to SharePoint Online with modern web parts and hub site architecture."
+ERP System Upgrade,Active,Finance,2026-02-01,2026-09-30,Maria Rodriguez,"Upgrade the enterprise resource planning system from v4.2 to v5.0 including data migration and user training across all departments."
+Employee Wellness Program,Active,Human Resources,2026-03-01,2026-12-31,Jennifer Park,"Launch a comprehensive employee wellness program including mental health resources, fitness subsidies, and quarterly wellness challenges."
+GDPR Compliance Audit,Completed,Legal,2025-10-01,2026-02-28,Thomas Wright,"Conduct a full audit of data processing activities across all systems to ensure compliance with updated GDPR requirements."
+Cloud Migration Phase 3,Active,Information Technology,2026-01-01,2026-08-31,Aisha Patel,"Migrate remaining on-premises workloads to Azure including legacy file servers and departmental applications."
+Brand Refresh Campaign,Proposed,Marketing,2026-05-01,2026-10-31,Carlos Mendez,"Redesign the corporate brand identity including logo refresh, updated color palette, and new marketing collateral templates."
+Facilities Consolidation,On Hold,Operations,2026-04-01,2026-11-30,Robert Kim,"Consolidate the satellite office operations into the main campus following the building expansion completion."
+New Hire Onboarding Automation,Active,Human Resources,2026-02-15,2026-05-31,Sarah Mitchell,"Automate the new hire onboarding workflow using Power Automate and SharePoint, replacing the manual paper-based process."

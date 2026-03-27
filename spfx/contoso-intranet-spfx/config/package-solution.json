@@ -1,0 +1,125 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "contoso-intranet-spfx",
+    "id": "a3e7b2c4-1d8f-4e6a-9c3b-5f7d2e1a8b4c",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "Contoso",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.20.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "Contoso Intranet Hub SPFx Solution"
+      },
+      "longDescription": {
+        "default": "Comprehensive SharePoint Online intranet solution with web parts, extensions, and adaptive card extensions."
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "Org Announcements Web Part",
+        "description": "Displays organizational announcements from a SharePoint list",
+        "id": "b1c2d3e4-f5a6-7890-abcd-ef1234567890",
+        "version": "1.0.0.0",
+        "componentIds": [
+          "c8f1a2b3-d4e5-6f78-9012-345678abcdef"
+        ]
+      },
+      {
+        "title": "People Directory Web Part",
+        "description": "Employee directory with search and presence",
+        "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+        "version": "1.0.0.0",
+        "componentIds": [
+          "d9e2f3a4-b5c6-7d89-0123-456789abcde0"
+        ]
+      },
+      {
+        "title": "Document Dashboard Web Part",
+        "description": "Document search and management dashboard",
+        "id": "b3c4d5e6-f7a8-9012-cdef-123456789012",
+        "version": "1.0.0.0",
+        "componentIds": [
+          "e0f3a4b5-c6d7-8e90-1234-567890abcde1"
+        ]
+      },
+      {
+        "title": "Project Status Web Part",
+        "description": "Project tracking with Kanban and table views",
+        "id": "b4c5d6e7-f8a9-0123-def0-234567890123",
+        "version": "1.0.0.0",
+        "componentIds": [
+          "f1a4b5c6-d7e8-9f01-2345-678901abcde2"
+        ]
+      },
+      {
+        "title": "Global Navigation Extension",
+        "description": "Application customizer for mega menu navigation",
+        "id": "b5c6d7e8-f9a0-1234-ef01-345678901234",
+        "version": "1.0.0.0",
+        "componentIds": [
+          "a2b5c6d7-e8f9-0a12-3456-789012abcde3"
+        ]
+      },
+      {
+        "title": "Classification Header Extension",
+        "description": "Displays classification banner on pages",
+        "id": "b6c7d8e9-f0a1-2345-f012-456789012345",
+        "version": "1.0.0.0",
+        "componentIds": [
+          "b3c6d7e8-f9a0-1b23-4567-890123abcde4"
+        ]
+      },
+      {
+        "title": "Document Metadata Field Customizer",
+        "description": "Color-coded classification badge for document libraries",
+        "id": "b7c8d9e0-f1a2-3456-0123-567890123456",
+        "version": "1.0.0.0",
+        "componentIds": [
+          "c4d7e8f9-a0b1-2c34-5678-901234abcde5"
+        ]
+      },
+      {
+        "title": "Send For Approval Command Set",
+        "description": "Toolbar command to send documents for approval",
+        "id": "b8c9d0e1-f2a3-4567-1234-678901234567",
+        "version": "1.0.0.0",
+        "componentIds": [
+          "d5e8f9a0-b1c2-3d45-6789-012345abcde6"
+        ]
+      },
+      {
+        "title": "My Documents Pending ACE",
+        "description": "Adaptive card showing pending document approvals",
+        "id": "b9c0d1e2-f3a4-5678-2345-789012345678",
+        "version": "1.0.0.0",
+        "componentIds": [
+          "e6f9a0b1-c2d3-4e56-7890-123456abcde7"
+        ]
+      },
+      {
+        "title": "Project Summary ACE",
+        "description": "Adaptive card showing project portfolio summary",
+        "id": "b0c1d2e3-f4a5-6789-3456-890123456789",
+        "version": "1.0.0.0",
+        "componentIds": [
+          "f7a0b1c2-d3e4-5f67-8901-234567abcde8"
+        ]
+      }
+    ],
+    "webApiPermissionRequests": []
+  },
+  "paths": {
+    "zippedPackage": "solution/contoso-intranet-spfx.sppkg"
+  }
+}

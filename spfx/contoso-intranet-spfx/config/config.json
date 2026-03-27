@@ -1,0 +1,88 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "org-announcements-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/orgAnnouncements/OrgAnnouncementsWebPart.js",
+          "manifest": "./src/webparts/orgAnnouncements/OrgAnnouncementsWebPart.manifest.json"
+        }
+      ]
+    },
+    "people-directory-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/peopleDirectory/PeopleDirectoryWebPart.js",
+          "manifest": "./src/webparts/peopleDirectory/PeopleDirectoryWebPart.manifest.json"
+        }
+      ]
+    },
+    "document-dashboard-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/documentDashboard/DocumentDashboardWebPart.js",
+          "manifest": "./src/webparts/documentDashboard/DocumentDashboardWebPart.manifest.json"
+        }
+      ]
+    },
+    "project-status-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/projectStatus/ProjectStatusWebPart.js",
+          "manifest": "./src/webparts/projectStatus/ProjectStatusWebPart.manifest.json"
+        }
+      ]
+    },
+    "global-navigation-application-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/globalNavigation/GlobalNavigationApplicationCustomizer.js",
+          "manifest": "./src/extensions/globalNavigation/GlobalNavigationApplicationCustomizer.manifest.json"
+        }
+      ]
+    },
+    "classification-header-application-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/classificationHeader/ClassificationHeaderApplicationCustomizer.js",
+          "manifest": "./src/extensions/classificationHeader/ClassificationHeaderApplicationCustomizer.manifest.json"
+        }
+      ]
+    },
+    "document-metadata-field-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/documentMetadata/DocumentMetadataFieldCustomizer.js",
+          "manifest": "./src/extensions/documentMetadata/DocumentMetadataFieldCustomizer.manifest.json"
+        }
+      ]
+    },
+    "send-for-approval-command-set": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/sendForApproval/SendForApprovalCommandSet.js",
+          "manifest": "./src/extensions/sendForApproval/SendForApprovalCommandSet.manifest.json"
+        }
+      ]
+    },
+    "my-documents-pending-adaptive-card-extension": {
+      "components": [
+        {
+          "entrypoint": "./lib/adaptiveCardExtensions/myDocumentsPending/MyDocumentsPendingAdaptiveCardExtension.js",
+          "manifest": "./src/adaptiveCardExtensions/myDocumentsPending/MyDocumentsPendingAdaptiveCardExtension.manifest.json"
+        }
+      ]
+    },
+    "project-summary-adaptive-card-extension": {
+      "components": [
+        {
+          "entrypoint": "./lib/adaptiveCardExtensions/projectSummary/ProjectSummaryAdaptiveCardExtension.js",
+          "manifest": "./src/adaptiveCardExtensions/projectSummary/ProjectSummaryAdaptiveCardExtension.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {}
+}
