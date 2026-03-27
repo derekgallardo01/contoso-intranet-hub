@@ -1,0 +1,20 @@
+graph TB
+    subgraph Tenant["SharePoint Online Tenant"]
+        Hub["Contoso Home<br/><b>Hub Site</b><br/>Communication Site<br/><i>Landing page, mega menu, announcements</i>"]
+    end
+
+    subgraph Associated["Associated Sites"]
+        Docs["Contoso Docs<br/>Communication Site<br/><i>Policies, SOPs, contracts,<br/>content types, retention labels</i>"]
+        Projects["Contoso Projects<br/>Team Site + M365 Group<br/><i>Project tracking, Kanban,<br/>task lists, milestones</i>"]
+        KB["Contoso Knowledge<br/>Communication Site<br/><i>Wiki articles, search,<br/>ratings, categories</i>"]
+    end
+
+    Hub -->|"Hub association<br/>Shared navigation"| Docs
+    Hub -->|"Hub association<br/>Shared search"| Projects
+    Hub -->|"Hub association<br/>Shared branding"| KB
+
+    classDef hub fill:#0078D4,stroke:#005A9E,color:#fff
+    classDef site fill:#28A745,stroke:#1E7E34,color:#fff
+
+    class Hub hub
+    class Docs,Projects,KB site

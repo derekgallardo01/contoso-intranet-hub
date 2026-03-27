@@ -1,0 +1,28 @@
+flowchart LR
+    Script["Deploy-IntranetHub.ps1<br/><b>Master Orchestrator</b>"]
+
+    Script --> S1["New-HubSiteTopology<br/><i>4 sites, hub registration</i>"]
+    Script --> S2["Deploy-Taxonomy<br/><i>4 term sets, 21 terms</i>"]
+    Script --> S3["Deploy-ContentTypes<br/><i>18 columns, 5 types</i>"]
+    Script --> S4["Deploy-Theme<br/><i>Corporate branding</i>"]
+    Script --> S5["Deploy-SiteDesigns<br/><i>Project site template</i>"]
+    Script --> S6["Deploy-Navigation<br/><i>Hub nav + mega menu list</i>"]
+    Script --> S7["Set-Permissions<br/><i>4 groups, role-based</i>"]
+    Script --> S8["Import-SampleData<br/><i>Announcements, projects,<br/>documents, articles</i>"]
+
+    S1 --> Result["Complete Intranet<br/><b>Ready in minutes</b><br/><i>vs hours of manual clicks</i>"]
+    S2 --> Result
+    S3 --> Result
+    S4 --> Result
+    S5 --> Result
+    S6 --> Result
+    S7 --> Result
+    S8 --> Result
+
+    classDef master fill:#E74C3C,stroke:#C0392B,color:#fff
+    classDef step fill:#0078D4,stroke:#005A9E,color:#fff
+    classDef result fill:#27AE60,stroke:#1E8449,color:#fff
+
+    class Script master
+    class S1,S2,S3,S4,S5,S6,S7,S8 step
+    class Result result

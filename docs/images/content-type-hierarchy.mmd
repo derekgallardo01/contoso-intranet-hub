@@ -1,0 +1,23 @@
+graph TB
+    Base["Document<br/><i>SharePoint built-in</i>"]
+
+    Contoso["Contoso Document<br/><i>+ Department<br/>+ Classification<br/>+ DocumentOwner<br/>+ ReviewDate</i>"]
+
+    Policy["Policy Document<br/><i>+ EffectiveDate<br/>+ ExpiryDate<br/>+ ApprovalStatus<br/>+ PolicyNumber</i><br/>Retention: 7 years"]
+    SOP["Standard Operating<br/>Procedure<br/><i>+ Version<br/>+ ProcessArea<br/>+ LastReviewedBy</i><br/>Retention: 3 years"]
+    Contract["Contract<br/><i>+ Vendor<br/>+ ContractValue<br/>+ StartDate / EndDate<br/>+ AutoRenew</i><br/>Retention: 10 years"]
+    Template["Template<br/><i>+ TemplateCategory<br/>+ LastUpdated</i><br/>No retention"]
+
+    Base --> Contoso
+    Contoso --> Policy
+    Contoso --> SOP
+    Contoso --> Contract
+    Contoso --> Template
+
+    classDef base fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    classDef parent fill:#0078D4,stroke:#005A9E,color:#fff
+    classDef child fill:#27AE60,stroke:#1E8449,color:#fff
+
+    class Base base
+    class Contoso parent
+    class Policy,SOP,Contract,Template child
