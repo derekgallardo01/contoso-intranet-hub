@@ -1,0 +1,200 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "name": "Contoso Document Approval",
+    "description": "Handles document approval requests triggered from the SendForApproval SPFx command set. Starts a Microsoft Approvals workflow, waits for the approver response, updates the document metadata, and notifies the requester.",
+    "category": "Document Lifecycle",
+    "owner": "Contoso IT"
+  },
+  "parameters": {
+    "$connections": {
+      "defaultValue": {},
+      "type": "Object"
+    }
+  },
+  "triggers": {
+    "When_HTTP_request_is_received": {
+      "type": "Request",
+      "kind": "Http",
+      "inputs": {
+        "schema": {
+          "type": "object",
+          "required": ["itemId", "fileName", "fileUrl", "requestedBy", "requestedByEmail", "siteUrl", "listId"],
+          "properties": {
+            "itemId": { "type": "string", "description": "SharePoint list item ID" },
+            "fileName": { "type": "string", "description": "Document file name" },
+            "fileUrl": { "type": "string", "description": "Full URL to the document" },
+            "notes": { "type": "string", "description": "Optional notes from the requester" },
+            "requestedBy": { "type": "string", "description": "Display name of the requester" },
+            "requestedByEmail": { "type": "string", "description": "Email of the requester" },
+            "siteUrl": { "type": "string", "description": "SharePoint site URL" },
+            "listId": { "type": "string", "description": "GUID of the document library" }
+          }
+        },
+        "method": "POST"
+      }
+    }
+  },
+  "actions": {
+    "Initialize_ApprovalStatus": {
+      "type": "InitializeVariable",
+      "inputs": {
+        "variables": [
+          {
+            "name": "ApprovalOutcome",
+            "type": "string",
+            "value": "Pending Review"
+          }
+        ]
+      },
+      "runAfter": {}
+    },
+    "Get_Document_Metadata": {
+      "type": "ApiConnection",
+      "inputs": {
+        "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+        "method": "get",
+        "path": "/datasets/@{encodeURIComponent(encodeURIComponent(triggerBody()?['siteUrl']))}/tables/@{encodeURIComponent(encodeURIComponent(triggerBody()?['listId']))}/items/@{triggerBody()?['itemId']}"
+      },
+      "runAfter": { "Initialize_ApprovalStatus": ["Succeeded"] }
+    },
+    "Get_Site_Owners": {
+      "type": "ApiConnection",
+      "inputs": {
+        "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+        "method": "get",
+        "path": "/datasets/@{encodeURIComponent(encodeURIComponent(triggerBody()?['siteUrl']))}/admins"
+      },
+      "runAfter": { "Get_Document_Metadata": ["Succeeded"] },
+      "description": "Get site owners/admins to serve as default approvers"
+    },
+    "Update_Status_to_Pending": {
+      "type": "ApiConnection",
+      "inputs": {
+        "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+        "method": "patch",
+        "path": "/datasets/@{encodeURIComponent(encodeURIComponent(triggerBody()?['siteUrl']))}/tables/@{encodeURIComponent(encodeURIComponent(triggerBody()?['listId']))}/items/@{triggerBody()?['itemId']}",
+        "body": {
+          "ApprovalStatus": "Pending Review"
+        }
+      },
+      "runAfter": { "Get_Document_Metadata": ["Succeeded"] }
+    },
+    "Start_Approval": {
+      "type": "ApiConnection",
+      "inputs": {
+        "host": { "connection": { "name": "@parameters('$connections')['approvals']['connectionId']" } },
+        "method": "post",
+        "path": "/v2/approvals",
+        "body": {
+          "title": "Document Approval: @{triggerBody()?['fileName']}",
+          "assignedTo": "@{body('Get_Site_Owners')?[0]?['Email']}",
+          "details": "**Document:** @{triggerBody()?['fileName']}\n\n**Requested By:** @{triggerBody()?['requestedBy']} (@{triggerBody()?['requestedByEmail']})\n\n**Department:** @{body('Get_Document_Metadata')?['Department']}\n\n**Classification:** @{body('Get_Document_Metadata')?['Classification']}\n\n**Notes:** @{if(empty(triggerBody()?['notes']), 'No notes provided', triggerBody()?['notes'])}\n\n[View Document](@{triggerBody()?['fileUrl']})",
+          "itemLink": "@{triggerBody()?['fileUrl']}",
+          "itemLinkDescription": "View @{triggerBody()?['fileName']}"
+        }
+      },
+      "runAfter": {
+        "Update_Status_to_Pending": ["Succeeded"],
+        "Get_Site_Owners": ["Succeeded"]
+      }
+    },
+    "Wait_for_Approval": {
+      "type": "ApiConnection",
+      "inputs": {
+        "host": { "connection": { "name": "@parameters('$connections')['approvals']['connectionId']" } },
+        "method": "post",
+        "path": "/v2/approvals/@{body('Start_Approval')?['id']}/wait"
+      },
+      "runAfter": { "Start_Approval": ["Succeeded"] }
+    },
+    "Set_Outcome_Variable": {
+      "type": "SetVariable",
+      "inputs": {
+        "name": "ApprovalOutcome",
+        "value": "@body('Wait_for_Approval')?['outcome']"
+      },
+      "runAfter": { "Wait_for_Approval": ["Succeeded"] }
+    },
+    "Condition_Approved_or_Rejected": {
+      "type": "If",
+      "expression": {
+        "and": [
+          { "equals": ["@variables('ApprovalOutcome')", "Approve"] }
+        ]
+      },
+      "actions": {
+        "Update_Status_Approved": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+            "method": "patch",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent(triggerBody()?['siteUrl']))}/tables/@{encodeURIComponent(encodeURIComponent(triggerBody()?['listId']))}/items/@{triggerBody()?['itemId']}",
+            "body": {
+              "ApprovalStatus": "Approved"
+            }
+          }
+        },
+        "Notify_Requester_Approved": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": { "connection": { "name": "@parameters('$connections')['office365']['connectionId']" } },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "@{triggerBody()?['requestedByEmail']}",
+              "Subject": "✅ Approved: @{triggerBody()?['fileName']}",
+              "Body": "<p>Your document <strong>@{triggerBody()?['fileName']}</strong> has been <strong>approved</strong>.</p><p><strong>Approver comments:</strong> @{body('Wait_for_Approval')?['comments']}</p><p><a href=\"@{triggerBody()?['fileUrl']}\">View Document</a></p>",
+              "Importance": "Normal"
+            }
+          },
+          "runAfter": { "Update_Status_Approved": ["Succeeded"] }
+        }
+      },
+      "else": {
+        "actions": {
+          "Update_Status_Rejected": {
+            "type": "ApiConnection",
+            "inputs": {
+              "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+              "method": "patch",
+              "path": "/datasets/@{encodeURIComponent(encodeURIComponent(triggerBody()?['siteUrl']))}/tables/@{encodeURIComponent(encodeURIComponent(triggerBody()?['listId']))}/items/@{triggerBody()?['itemId']}",
+              "body": {
+                "ApprovalStatus": "Rejected"
+              }
+            }
+          },
+          "Notify_Requester_Rejected": {
+            "type": "ApiConnection",
+            "inputs": {
+              "host": { "connection": { "name": "@parameters('$connections')['office365']['connectionId']" } },
+              "method": "post",
+              "path": "/v2/Mail",
+              "body": {
+                "To": "@{triggerBody()?['requestedByEmail']}",
+                "Subject": "❌ Rejected: @{triggerBody()?['fileName']}",
+                "Body": "<p>Your document <strong>@{triggerBody()?['fileName']}</strong> has been <strong>rejected</strong>.</p><p><strong>Approver comments:</strong> @{body('Wait_for_Approval')?['comments']}</p><p><a href=\"@{triggerBody()?['fileUrl']}\">View Document</a></p>",
+                "Importance": "High"
+              }
+            },
+            "runAfter": { "Update_Status_Rejected": ["Succeeded"] }
+          }
+        }
+      },
+      "runAfter": { "Set_Outcome_Variable": ["Succeeded"] }
+    },
+    "Response_200": {
+      "type": "Response",
+      "kind": "Http",
+      "inputs": {
+        "statusCode": 200,
+        "body": {
+          "status": "Approval process started",
+          "approvalId": "@{body('Start_Approval')?['id']}"
+        }
+      },
+      "runAfter": { "Start_Approval": ["Succeeded"] }
+    }
+  }
+}

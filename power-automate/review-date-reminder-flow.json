@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "name": "Contoso Review Date Reminder",
+    "description": "Daily scheduled flow that identifies documents approaching their review date (within 30 days) and sends email reminders to document owners. Supports the retention schedule defined in governance/retention-schedule.md.",
+    "category": "Document Lifecycle",
+    "owner": "Contoso IT"
+  },
+  "triggers": {
+    "Recurrence_Daily": {
+      "type": "Recurrence",
+      "recurrence": {
+        "frequency": "Day",
+        "interval": 1,
+        "schedule": {
+          "hours": ["8"],
+          "minutes": ["0"]
+        },
+        "timeZone": "Eastern Standard Time"
+      }
+    }
+  },
+  "actions": {
+    "Calculate_Review_Window": {
+      "type": "Compose",
+      "inputs": "@addDays(utcNow(), 30, 'yyyy-MM-dd')",
+      "runAfter": {}
+    },
+    "Get_Documents_Due_for_Review": {
+      "type": "ApiConnection",
+      "inputs": {
+        "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+        "method": "get",
+        "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://contoso.sharepoint.com/sites/contoso-docs'))}/tables/@{encodeURIComponent(encodeURIComponent('Documents'))}/items",
+        "queries": {
+          "$filter": "ReviewDate le '@{outputs('Calculate_Review_Window')}' and ReviewDate ge '@{formatDateTime(utcNow(), 'yyyy-MM-dd')}' and ApprovalStatus eq 'Approved'",
+          "$select": "ID,Title,FileLeafRef,ReviewDate,Editor/Title,Editor/EMail,Department,Classification",
+          "$expand": "Editor",
+          "$orderby": "ReviewDate asc"
+        }
+      },
+      "runAfter": { "Calculate_Review_Window": ["Succeeded"] }
+    },
+    "Apply_to_Each_Document": {
+      "type": "Foreach",
+      "foreach": "@body('Get_Documents_Due_for_Review')?['value']",
+      "actions": {
+        "Calculate_Days_Until_Review": {
+          "type": "Compose",
+          "inputs": "@div(sub(ticks(items('Apply_to_Each_Document')?['ReviewDate']), ticks(utcNow())), 864000000000)"
+        },
+        "Send_Reminder_Email": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": { "connection": { "name": "@parameters('$connections')['office365']['connectionId']" } },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "@{items('Apply_to_Each_Document')?['Editor']?['EMail']}",
+              "Subject": "Review Due: @{items('Apply_to_Each_Document')?['FileLeafRef']} - @{int(outputs('Calculate_Days_Until_Review'))} days remaining",
+              "Body": "<p>The following document is due for review:</p><table><tr><td><strong>Document:</strong></td><td>@{items('Apply_to_Each_Document')?['FileLeafRef']}</td></tr><tr><td><strong>Review Date:</strong></td><td>@{formatDateTime(items('Apply_to_Each_Document')?['ReviewDate'], 'MMMM dd, yyyy')}</td></tr><tr><td><strong>Days Remaining:</strong></td><td>@{int(outputs('Calculate_Days_Until_Review'))}</td></tr><tr><td><strong>Department:</strong></td><td>@{items('Apply_to_Each_Document')?['Department']}</td></tr><tr><td><strong>Classification:</strong></td><td>@{items('Apply_to_Each_Document')?['Classification']?['Value']}</td></tr></table><p>Please review and update this document before the review date.</p>",
+              "Importance": "@{if(less(int(outputs('Calculate_Days_Until_Review')), 7), 'High', 'Normal')}"
+            }
+          },
+          "runAfter": { "Calculate_Days_Until_Review": ["Succeeded"] }
+        }
+      },
+      "runAfter": { "Get_Documents_Due_for_Review": ["Succeeded"] }
+    }
+  }
+}

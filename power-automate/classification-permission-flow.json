@@ -1,0 +1,110 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "name": "Contoso Classification-Based Permissions",
+    "description": "When a document's Classification metadata changes to Confidential or Restricted, this flow automatically breaks permission inheritance and grants access only to authorized groups. Enforces the security model defined in governance/permissions-matrix.md.",
+    "category": "Document Lifecycle",
+    "owner": "Contoso IT"
+  },
+  "triggers": {
+    "When_item_is_modified": {
+      "type": "ApiConnection",
+      "inputs": {
+        "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+        "method": "get",
+        "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://contoso.sharepoint.com/sites/contoso-docs'))}/tables/@{encodeURIComponent(encodeURIComponent('Documents'))}/onupdateditems"
+      },
+      "recurrence": { "frequency": "Minute", "interval": 5 },
+      "splitOn": "@triggerBody()?['value']"
+    }
+  },
+  "actions": {
+    "Get_Previous_Version": {
+      "type": "ApiConnection",
+      "inputs": {
+        "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+        "method": "get",
+        "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://contoso.sharepoint.com/sites/contoso-docs'))}/tables/@{encodeURIComponent(encodeURIComponent('Documents'))}/items/@{triggerBody()?['ID']}/versions"
+      },
+      "runAfter": {},
+      "description": "Retrieve version history to detect if Classification changed"
+    },
+    "Condition_Classification_Changed_to_Restricted": {
+      "type": "If",
+      "expression": {
+        "or": [
+          { "equals": ["@triggerBody()?['Classification']?['Value']", "Confidential"] },
+          { "equals": ["@triggerBody()?['Classification']?['Value']", "Restricted"] }
+        ]
+      },
+      "actions": {
+        "Send_HTTP_Break_Inheritance": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://contoso.sharepoint.com/sites/contoso-docs/_api/web/lists/getbytitle('Documents')/items(@{triggerBody()?['ID']})/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)",
+            "headers": {
+              "Accept": "application/json;odata=nometadata",
+              "Content-Type": "application/json;odata=nometadata"
+            },
+            "authentication": {
+              "type": "ManagedServiceIdentity"
+            }
+          },
+          "description": "Break permission inheritance on the document"
+        },
+        "Send_HTTP_Grant_SiteAdmins": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://contoso.sharepoint.com/sites/contoso-docs/_api/web/lists/getbytitle('Documents')/items(@{triggerBody()?['ID']})/roleassignments/addroleassignment(principalid=@{variables('SiteAdminsGroupId')},roledefid=1073741829)",
+            "headers": {
+              "Accept": "application/json;odata=nometadata"
+            },
+            "authentication": {
+              "type": "ManagedServiceIdentity"
+            }
+          },
+          "runAfter": { "Send_HTTP_Break_Inheritance": ["Succeeded"] },
+          "description": "Grant Full Control to Contoso Site Admins group"
+        },
+        "Send_HTTP_Grant_RestrictedReaders": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://contoso.sharepoint.com/sites/contoso-docs/_api/web/lists/getbytitle('Documents')/items(@{triggerBody()?['ID']})/roleassignments/addroleassignment(principalid=@{variables('RestrictedReadersGroupId')},roledefid=1073741826)",
+            "headers": {
+              "Accept": "application/json;odata=nometadata"
+            },
+            "authentication": {
+              "type": "ManagedServiceIdentity"
+            }
+          },
+          "runAfter": { "Send_HTTP_Break_Inheritance": ["Succeeded"] },
+          "description": "Grant Read to Contoso Restricted Readers group"
+        },
+        "Notify_Document_Owner": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": { "connection": { "name": "@parameters('$connections')['office365']['connectionId']" } },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "@{triggerBody()?['Editor']?['Email']}",
+              "Subject": "Permissions updated: @{triggerBody()?['FileLeafRef']}",
+              "Body": "<p>The document <strong>@{triggerBody()?['FileLeafRef']}</strong> has been classified as <strong>@{triggerBody()?['Classification']?['Value']}</strong>.</p><p>Permission inheritance has been broken and access is now restricted to authorized groups only.</p>",
+              "Importance": "High"
+            }
+          },
+          "runAfter": {
+            "Send_HTTP_Grant_SiteAdmins": ["Succeeded"],
+            "Send_HTTP_Grant_RestrictedReaders": ["Succeeded"]
+          }
+        }
+      },
+      "else": { "actions": {} },
+      "runAfter": { "Get_Previous_Version": ["Succeeded"] }
+    }
+  }
+}

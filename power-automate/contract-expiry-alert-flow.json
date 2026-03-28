@@ -1,0 +1,97 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "name": "Contoso Contract Expiry Alert",
+    "description": "Weekly scheduled flow that identifies contracts expiring within 60 days and sends alerts to the Legal team. Supports the contract content type and retention policies defined in governance/retention-schedule.md.",
+    "category": "Document Lifecycle",
+    "owner": "Contoso Legal"
+  },
+  "triggers": {
+    "Recurrence_Weekly": {
+      "type": "Recurrence",
+      "recurrence": {
+        "frequency": "Week",
+        "interval": 1,
+        "schedule": {
+          "weekDays": ["Monday"],
+          "hours": ["9"],
+          "minutes": ["0"]
+        },
+        "timeZone": "Eastern Standard Time"
+      }
+    }
+  },
+  "actions": {
+    "Calculate_Expiry_Window": {
+      "type": "Compose",
+      "inputs": "@addDays(utcNow(), 60, 'yyyy-MM-dd')",
+      "runAfter": {}
+    },
+    "Get_Expiring_Contracts": {
+      "type": "ApiConnection",
+      "inputs": {
+        "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+        "method": "get",
+        "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://contoso.sharepoint.com/sites/contoso-docs'))}/tables/@{encodeURIComponent(encodeURIComponent('Contracts'))}/items",
+        "queries": {
+          "$filter": "ContractEndDate le '@{outputs('Calculate_Expiry_Window')}' and ContractEndDate ge '@{formatDateTime(utcNow(), 'yyyy-MM-dd')}'",
+          "$select": "ID,Title,FileLeafRef,Vendor,ContractValue,ContractStartDate,ContractEndDate,AutoRenew,Editor/Title,Editor/EMail",
+          "$expand": "Editor",
+          "$orderby": "ContractEndDate asc"
+        }
+      },
+      "runAfter": { "Calculate_Expiry_Window": ["Succeeded"] }
+    },
+    "Condition_Has_Expiring_Contracts": {
+      "type": "If",
+      "expression": {
+        "and": [
+          { "greater": ["@length(body('Get_Expiring_Contracts')?['value'])", 0] }
+        ]
+      },
+      "actions": {
+        "Build_Contract_Table": {
+          "type": "Compose",
+          "inputs": {
+            "contractCount": "@length(body('Get_Expiring_Contracts')?['value'])",
+            "contracts": "@body('Get_Expiring_Contracts')?['value']"
+          }
+        },
+        "Create_HTML_Table": {
+          "type": "Table",
+          "inputs": {
+            "from": "@body('Get_Expiring_Contracts')?['value']",
+            "format": "HTML",
+            "columns": [
+              { "header": "Contract", "value": "@item()?['Title']" },
+              { "header": "Vendor", "value": "@item()?['Vendor']" },
+              { "header": "Value", "value": "@item()?['ContractValue']" },
+              { "header": "Expires", "value": "@formatDateTime(item()?['ContractEndDate'], 'MMM dd, yyyy')" },
+              { "header": "Auto-Renew", "value": "@if(item()?['AutoRenew'], 'Yes', 'No')" },
+              { "header": "Owner", "value": "@item()?['Editor']?['Title']" }
+            ]
+          },
+          "runAfter": { "Build_Contract_Table": ["Succeeded"] }
+        },
+        "Send_Weekly_Digest_to_Legal": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": { "connection": { "name": "@parameters('$connections')['office365']['connectionId']" } },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "legal@contoso.com",
+              "Subject": "Contract Expiry Alert: @{length(body('Get_Expiring_Contracts')?['value'])} contracts expiring within 60 days",
+              "Body": "<h2>Contract Expiry Summary</h2><p>The following <strong>@{length(body('Get_Expiring_Contracts')?['value'])}</strong> contracts are expiring within the next 60 days:</p>@{body('Create_HTML_Table')}<p><em>This is an automated weekly digest from the Contoso Intranet Hub.</em></p>",
+              "Importance": "High"
+            }
+          },
+          "runAfter": { "Create_HTML_Table": ["Succeeded"] }
+        }
+      },
+      "else": { "actions": {} },
+      "runAfter": { "Get_Expiring_Contracts": ["Succeeded"] }
+    }
+  }
+}
