@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contoso Intranet Hub - Home</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: #f5f5f5; color: #242424; }
+
+  /* SharePoint chrome */
+  .sp-header { background: #0078d4; color: white; display: flex; align-items: center; height: 48px; padding: 0 20px; justify-content: space-between; }
+  .sp-header .logo { font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 12px; }
+  .sp-header .logo svg { width: 24px; height: 24px; fill: white; }
+  .sp-header .user { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .sp-header .avatar { width: 32px; height: 32px; border-radius: 50%; background: #005a9e; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+  .sp-header .search-box { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; padding: 6px 12px; color: white; width: 360px; font-size: 13px; }
+  .sp-header .search-box::placeholder { color: rgba(255,255,255,0.7); }
+
+  /* Hub nav */
+  .hub-nav { background: #106ebe; color: white; display: flex; align-items: center; height: 40px; padding: 0 20px; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .hub-nav .nav-item { padding: 8px 14px; font-size: 13px; color: white; text-decoration: none; border-radius: 4px; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+  .hub-nav .nav-item:hover { background: rgba(255,255,255,0.12); }
+  .hub-nav .nav-item.active { background: rgba(255,255,255,0.18); font-weight: 600; }
+  .hub-nav .chevron { font-size: 10px; }
+
+  /* Page content */
+  .page { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+  .page-title { font-size: 28px; font-weight: 600; margin-bottom: 24px; color: #242424; }
+
+  /* Two column layout */
+  .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+
+  /* Announcements */
+  .section-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .filter-dropdown { padding: 6px 12px; border: 1px solid #d1d1d1; border-radius: 4px; font-size: 13px; background: white; min-width: 180px; }
+  .announcement-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid; }
+  .announcement-card.high { border-left-color: #d13438; }
+  .announcement-card.medium { border-left-color: #ca5010; }
+  .announcement-card.low { border-left-color: #0078d4; }
+  .announcement-card .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .announcement-card .card-title { font-weight: 600; font-size: 15px; flex: 1; }
+  .badge { padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+  .badge.danger { background: #fde7e9; color: #d13438; }
+  .badge.warning { background: #fff4ce; color: #8a6400; }
+  .badge.info { background: #e8f4fd; color: #0078d4; }
+  .badge.outline { background: transparent; border: 1px solid #d1d1d1; color: #616161; }
+  .announcement-card .body { color: #616161; font-size: 13px; line-height: 1.5; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .announcement-card .meta { display: flex; gap: 16px; font-size: 12px; color: #8a8886; }
+  .announcement-card .meta-item { display: flex; align-items: center; gap: 4px; }
+
+  /* People cards */
+  .people-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .person-card { background: white; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); cursor: pointer; }
+  .person-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .person-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px; color: white; position: relative; }
+  .person-avatar.blue { background: #0078d4; }
+  .person-avatar.green { background: #107c10; }
+  .person-avatar.purple { background: #5c2d91; }
+  .person-avatar.teal { background: #008272; }
+  .presence-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; position: absolute; bottom: -1px; right: -1px; }
+  .presence-dot.available { background: #107c10; }
+  .presence-dot.busy { background: #d13438; }
+  .presence-dot.away { background: #ca5010; }
+  .person-info .name { font-weight: 600; font-size: 13px; }
+  .person-info .title { font-size: 12px; color: #616161; }
+  .person-info .dept { font-size: 11px; color: #8a8886; }
+
+  /* Quick links */
+  .quick-links { margin-top: 20px; }
+  .quick-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: white; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-size: 13px; color: #0078d4; font-weight: 600; text-decoration: none; }
+  .quick-link .icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .quick-link .icon.docs { background: #e8f4fd; color: #0078d4; }
+  .quick-link .icon.projects { background: #e7f5e7; color: #107c10; }
+  .quick-link .icon.kb { background: #f3e8fd; color: #5c2d91; }
+</style>
+</head>
+<body>
+  <!-- SP Header -->
+  <div class="sp-header">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      Contoso Intranet
+    </div>
+    <input class="search-box" placeholder="Search the intranet..." />
+    <div class="user">
+      <span>Jane Doe</span>
+      <div class="avatar">JD</div>
+    </div>
+  </div>
+
+  <!-- Mega Menu Nav -->
+  <div class="hub-nav">
+    <a class="nav-item active">Home</a>
+    <a class="nav-item">Documents <span class="chevron">&#9662;</span></a>
+    <a class="nav-item">Projects <span class="chevron">&#9662;</span></a>
+    <a class="nav-item">Knowledge Base <span class="chevron">&#9662;</span></a>
+    <a class="nav-item">HR Portal</a>
+    <a class="nav-item">IT Support</a>
+  </div>
+
+  <!-- Page -->
+  <div class="page">
+    <div class="page-title">Welcome to Contoso</div>
+
+    <div class="two-col">
+      <!-- Left: Announcements -->
+      <div>
+        <div class="section-title">
+          <span>Announcements</span>
+          <select class="filter-dropdown">
+            <option>All Departments</option>
+            <option>HR</option>
+            <option>IT</option>
+            <option>Finance</option>
+            <option>Legal</option>
+          </select>
+        </div>
+
+        <div class="announcement-card high">
+          <div class="card-header">
+            <span class="card-title">Mandatory Security Training Due March 31</span>
+            <span class="badge danger">&#9888; High</span>
+            <span class="badge outline">IT</span>
+          </div>
+          <div class="body">All employees must complete the annual security awareness training by March 31, 2026. Access the training module through the Learning Portal. Failure to complete may result in restricted system access.</div>
+          <div class="meta">
+            <span class="meta-item">&#128100; Alex Kim</span>
+            <span class="meta-item">&#128197; Mar 15, 2026</span>
+            <span class="meta-item">Expires: Mar 31, 2026</span>
+          </div>
+        </div>
+
+        <div class="announcement-card medium">
+          <div class="card-header">
+            <span class="card-title">Q1 Town Hall Recap & Recording Available</span>
+            <span class="badge warning">&#9888; Medium</span>
+            <span class="badge outline">Executive</span>
+          </div>
+          <div class="body">Thank you to everyone who attended the Q1 Town Hall. The recording and slide deck are now available on the Knowledge Base. Key topics included the 2026 strategic roadmap and new office locations.</div>
+          <div class="meta">
+            <span class="meta-item">&#128100; Sarah Chen</span>
+            <span class="meta-item">&#128197; Mar 12, 2026</span>
+          </div>
+        </div>
+
+        <div class="announcement-card low">
+          <div class="card-header">
+            <span class="card-title">New Expense Report Policy Effective April 1</span>
+            <span class="badge info">&#8505; Low</span>
+            <span class="badge outline">Finance</span>
+          </div>
+          <div class="body">The updated expense report policy introduces simplified receipt thresholds and faster reimbursement processing. Please review the full policy document in the Docs center.</div>
+          <div class="meta">
+            <span class="meta-item">&#128100; Mike Johnson</span>
+            <span class="meta-item">&#128197; Mar 10, 2026</span>
+          </div>
+        </div>
+
+        <div class="announcement-card medium">
+          <div class="card-header">
+            <span class="card-title">Office Renovation: Building B, Floors 3-4</span>
+            <span class="badge warning">&#9888; Medium</span>
+            <span class="badge outline">Operations</span>
+          </div>
+          <div class="body">Renovation work on Building B, floors 3 and 4, begins April 7. Affected teams have been assigned temporary seating. See your manager for details.</div>
+          <div class="meta">
+            <span class="meta-item">&#128100; Lisa Park</span>
+            <span class="meta-item">&#128197; Mar 8, 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: People + Quick Links -->
+      <div>
+        <div class="section-title">People Directory</div>
+        <div class="people-grid">
+          <div class="person-card">
+            <div class="person-avatar blue">SC
+              <div class="presence-dot available"></div>
+            </div>
+            <div class="person-info">
+              <div class="name">Sarah Chen</div>
+              <div class="title">Chief Operating Officer</div>
+              <div class="dept">Executive</div>
+            </div>
+          </div>
+          <div class="person-card">
+            <div class="person-avatar green">AK
+              <div class="presence-dot busy"></div>
+            </div>
+            <div class="person-info">
+              <div class="name">Alex Kim</div>
+              <div class="title">IT Security Manager</div>
+              <div class="dept">IT</div>
+            </div>
+          </div>
+          <div class="person-card">
+            <div class="person-avatar purple">MJ
+              <div class="presence-dot available"></div>
+            </div>
+            <div class="person-info">
+              <div class="name">Mike Johnson</div>
+              <div class="title">Finance Director</div>
+              <div class="dept">Finance</div>
+            </div>
+          </div>
+          <div class="person-card">
+            <div class="person-avatar teal">LP
+              <div class="presence-dot away"></div>
+            </div>
+            <div class="person-info">
+              <div class="name">Lisa Park</div>
+              <div class="title">Facilities Manager</div>
+              <div class="dept">Operations</div>
+            </div>
+          </div>
+          <div class="person-card">
+            <div class="person-avatar blue">RW
+              <div class="presence-dot available"></div>
+            </div>
+            <div class="person-info">
+              <div class="name">Rachel Wang</div>
+              <div class="title">HR Business Partner</div>
+              <div class="dept">HR</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-links">
+          <div class="section-title" style="font-size:16px;">Hub Sites</div>
+          <a class="quick-link">
+            <div class="icon docs">&#128196;</div>
+            Document Center
+          </a>
+          <a class="quick-link">
+            <div class="icon projects">&#128202;</div>
+            Project Tracker
+          </a>
+          <a class="quick-link">
+            <div class="icon kb">&#128218;</div>
+            Knowledge Base
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

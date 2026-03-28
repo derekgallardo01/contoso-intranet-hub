@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contoso Intranet - Document Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: #f5f5f5; color: #242424; }
+  .sp-header { background: #0078d4; color: white; display: flex; align-items: center; height: 48px; padding: 0 20px; justify-content: space-between; }
+  .sp-header .logo { font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 12px; }
+  .sp-header .user { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .sp-header .avatar { width: 32px; height: 32px; border-radius: 50%; background: #005a9e; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+  .sp-header .search-box { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; padding: 6px 12px; color: white; width: 360px; font-size: 13px; }
+  .sp-header .search-box::placeholder { color: rgba(255,255,255,0.7); }
+  .hub-nav { background: #106ebe; color: white; display: flex; align-items: center; height: 40px; padding: 0 20px; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .hub-nav .nav-item { padding: 8px 14px; font-size: 13px; color: white; text-decoration: none; border-radius: 4px; display: flex; align-items: center; gap: 4px; }
+  .hub-nav .nav-item:hover { background: rgba(255,255,255,0.12); }
+  .hub-nav .nav-item.active { background: rgba(255,255,255,0.18); font-weight: 600; }
+
+  /* Classification Banner */
+  .classification-banner { background: #0078d4; color: white; text-align: center; padding: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+  .page { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .page-title { font-size: 24px; font-weight: 600; }
+  .result-count { color: #8a8886; font-size: 13px; }
+
+  .search-input { width: 460px; padding: 8px 12px 8px 36px; border: 1px solid #d1d1d1; border-radius: 4px; font-size: 14px; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238a8886' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") no-repeat 10px center; margin-bottom: 16px; }
+
+  /* Filters */
+  .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-chip { padding: 6px 14px; border-radius: 16px; font-size: 12px; border: 1px solid #d1d1d1; background: white; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .filter-chip.active { background: #e8f4fd; border-color: #0078d4; color: #0078d4; font-weight: 600; }
+  .filter-chip .count { background: #e8e8e8; padding: 1px 6px; border-radius: 10px; font-size: 10px; }
+  .filter-chip.active .count { background: #cce4f7; }
+
+  /* Data grid */
+  .data-grid { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+  .data-grid table { width: 100%; border-collapse: collapse; }
+  .data-grid th { background: #fafafa; padding: 10px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #616161; border-bottom: 1px solid #e8e8e8; }
+  .data-grid td { padding: 10px 16px; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+  .data-grid tr:hover td { background: #f5f9fc; }
+  .doc-icon { width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; }
+  .file-link { color: #0078d4; text-decoration: none; font-weight: 500; }
+  .badge-sm { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .badge-sm.public { background: #e7f5e7; color: #107c10; }
+  .badge-sm.internal { background: #e8f4fd; color: #0078d4; }
+  .badge-sm.confidential { background: #fff4ce; color: #8a6400; }
+  .badge-sm.restricted { background: #fde7e9; color: #d13438; }
+  .file-size { color: #8a8886; }
+</style>
+</head>
+<body>
+  <div class="sp-header">
+    <div class="logo">&#127760; Contoso Intranet</div>
+    <input class="search-box" placeholder="Search the intranet..." />
+    <div class="user"><span>Jane Doe</span><div class="avatar">JD</div></div>
+  </div>
+  <div class="hub-nav">
+    <a class="nav-item">Home</a>
+    <a class="nav-item active">Documents &#9662;</a>
+    <a class="nav-item">Projects &#9662;</a>
+    <a class="nav-item">Knowledge Base &#9662;</a>
+    <a class="nav-item">HR Portal</a>
+    <a class="nav-item">IT Support</a>
+  </div>
+  <div class="classification-banner">&#128065; INTERNAL &mdash; This site contains internal company information</div>
+
+  <div class="page">
+    <div class="page-header">
+      <span class="page-title">Document Dashboard</span>
+      <span class="result-count">47 documents found</span>
+    </div>
+
+    <input class="search-input" placeholder="Search documents..." value="quarterly report" />
+
+    <div class="filters">
+      <div class="filter-chip active">All Types</div>
+      <div class="filter-chip">Policy Document <span class="count">12</span></div>
+      <div class="filter-chip active">SOP <span class="count">8</span></div>
+      <div class="filter-chip">Contract <span class="count">15</span></div>
+      <div class="filter-chip">Template <span class="count">12</span></div>
+      <div style="width:1px; background:#d1d1d1; margin: 0 4px;"></div>
+      <div class="filter-chip">HR <span class="count">9</span></div>
+      <div class="filter-chip active">Finance <span class="count">14</span></div>
+      <div class="filter-chip">IT <span class="count">11</span></div>
+      <div class="filter-chip">Legal <span class="count">13</span></div>
+    </div>
+
+    <div class="data-grid">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Content Type</th>
+            <th>Department</th>
+            <th>Classification</th>
+            <th>Modified</th>
+            <th>Author</th>
+            <th>Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="color:#d13438; font-size:16px; vertical-align:middle;">&#128196;</span> <a class="file-link">Q4-2025-Financial-Report.xlsx</a></td>
+            <td>SOP</td>
+            <td>Finance</td>
+            <td><span class="badge-sm confidential">Confidential</span></td>
+            <td>Mar 20, 2026</td>
+            <td>Mike Johnson</td>
+            <td class="file-size">2.4 MB</td>
+          </tr>
+          <tr>
+            <td><span style="color:#0078d4; font-size:16px; vertical-align:middle;">&#128196;</span> <a class="file-link">Quarterly-Budget-Review-Q1.docx</a></td>
+            <td>SOP</td>
+            <td>Finance</td>
+            <td><span class="badge-sm internal">Internal</span></td>
+            <td>Mar 18, 2026</td>
+            <td>Sarah Chen</td>
+            <td class="file-size">856 KB</td>
+          </tr>
+          <tr>
+            <td><span style="color:#d13438; font-size:16px; vertical-align:middle;">&#128196;</span> <a class="file-link">Revenue-Forecast-2026.xlsx</a></td>
+            <td>SOP</td>
+            <td>Finance</td>
+            <td><span class="badge-sm restricted">Restricted</span></td>
+            <td>Mar 15, 2026</td>
+            <td>Mike Johnson</td>
+            <td class="file-size">1.8 MB</td>
+          </tr>
+          <tr>
+            <td><span style="color:#0078d4; font-size:16px; vertical-align:middle;">&#128196;</span> <a class="file-link">Expense-Report-Policy-v3.pdf</a></td>
+            <td>Policy Document</td>
+            <td>Finance</td>
+            <td><span class="badge-sm public">Public</span></td>
+            <td>Mar 10, 2026</td>
+            <td>Lisa Park</td>
+            <td class="file-size">420 KB</td>
+          </tr>
+          <tr>
+            <td><span style="color:#107c10; font-size:16px; vertical-align:middle;">&#128196;</span> <a class="file-link">Quarterly-Compliance-Audit-Report.pptx</a></td>
+            <td>SOP</td>
+            <td>Finance</td>
+            <td><span class="badge-sm confidential">Confidential</span></td>
+            <td>Mar 8, 2026</td>
+            <td>Alex Kim</td>
+            <td class="file-size">3.2 MB</td>
+          </tr>
+          <tr>
+            <td><span style="color:#0078d4; font-size:16px; vertical-align:middle;">&#128196;</span> <a class="file-link">Travel-Reimbursement-SOP.docx</a></td>
+            <td>SOP</td>
+            <td>Finance</td>
+            <td><span class="badge-sm internal">Internal</span></td>
+            <td>Mar 5, 2026</td>
+            <td>Rachel Wang</td>
+            <td class="file-size">245 KB</td>
+          </tr>
+          <tr>
+            <td><span style="color:#d13438; font-size:16px; vertical-align:middle;">&#128196;</span> <a class="file-link">Vendor-Payment-Schedule-Q1.xlsx</a></td>
+            <td>SOP</td>
+            <td>Finance</td>
+            <td><span class="badge-sm confidential">Confidential</span></td>
+            <td>Mar 1, 2026</td>
+            <td>Mike Johnson</td>
+            <td class="file-size">1.1 MB</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

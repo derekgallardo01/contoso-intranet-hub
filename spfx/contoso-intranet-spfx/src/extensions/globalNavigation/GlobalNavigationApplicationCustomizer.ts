@@ -28,7 +28,7 @@ interface INavListItem {
 
 export default class GlobalNavigationApplicationCustomizer extends BaseApplicationCustomizer<IGlobalNavigationProperties> {
   private _topPlaceholder: PlaceholderContent | undefined;
-  private _cacheService: CacheService;
+  private _cacheService!: CacheService;
 
   @override
   public onInit(): Promise<void> {

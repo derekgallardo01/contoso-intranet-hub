@@ -1,8 +1,8 @@
 import {
   BaseAdaptiveCardExtension,
-  IPropertyPaneConfiguration,
-  PropertyPaneTextField,
 } from '@microsoft/sp-adaptive-card-extension-base';
+import { IPropertyPaneConfiguration } from '@microsoft/sp-property-pane';
+import { PropertyPaneTextField } from '@microsoft/sp-property-pane';
 import { SPHttpClient } from '@microsoft/sp-http';
 import { CardView } from './cardView/CardView';
 import { QuickView } from './quickView/QuickView';
@@ -78,7 +78,7 @@ export default class MyDocumentsPendingAdaptiveCardExtension extends BaseAdaptiv
     }
   }
 
-  protected get iconProperty(): string {
+  public get iconProperty(): string {
     return 'DocumentApproval';
   }
 
