@@ -1,7 +1,6 @@
 import {
   BasePrimaryTextCardView,
   ICardButton,
-  IExternalLinkCardAction,
   IQuickViewCardAction,
 } from '@microsoft/sp-adaptive-card-extension-base';
 import {

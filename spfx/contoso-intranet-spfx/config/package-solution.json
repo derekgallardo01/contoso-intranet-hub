@@ -117,7 +117,16 @@
         ]
       }
     ],
-    "webApiPermissionRequests": []
+    "webApiPermissionRequests": [
+      {
+        "resource": "Microsoft Graph",
+        "scope": "User.Read.All"
+      },
+      {
+        "resource": "Microsoft Graph",
+        "scope": "Presence.Read.All"
+      }
+    ]
   },
   "paths": {
     "zippedPackage": "solution/contoso-intranet-spfx.sppkg"
