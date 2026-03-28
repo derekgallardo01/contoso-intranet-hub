@@ -76,9 +76,11 @@ export const DocumentDashboard: React.FC<IDocumentDashboardProps> = ({
   };
 
   const scopeQuery = searchScope ? `path:"${searchScope}"` : '';
-  const fullQuery = searchText
-    ? `${searchText} ${scopeQuery} IsDocument:1`.trim()
-    : `* ${scopeQuery} IsDocument:1`.trim();
+  // Lazy-load: only search when the user has typed something or applied filters
+  const shouldSearch = searchText.trim().length > 0 || activeFilters.length > 0;
+  const fullQuery = shouldSearch
+    ? `${searchText || '*'} ${scopeQuery} IsDocument:1`.trim()
+    : '';
 
   const { results, refiners, totalRows, loading, error } = useSearch(
     spHttpClient,
@@ -118,7 +120,12 @@ export const DocumentDashboard: React.FC<IDocumentDashboardProps> = ({
             onFilterChange={handleFilterChange}
           />
 
-          {loading ? (
+          {!shouldSearch ? (
+            <EmptyState
+              message="Search for documents"
+              description="Enter a search term to find documents across the intranet"
+            />
+          ) : loading ? (
             <LoadingSpinner label="Searching documents..." />
           ) : error ? (
             <EmptyState

@@ -6,19 +6,55 @@ import {
   PropertyPaneToggle,
 } from '@microsoft/sp-webpart-base';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
+import {
+  IDynamicDataPropertyDefinition,
+  IDynamicDataCallables,
+} from '@microsoft/sp-dynamic-data';
 import { PeopleDirectory, IPeopleDirectoryProps } from './components/PeopleDirectory';
 
 export interface IPeopleDirectoryWebPartProps {
   showPresence: boolean;
 }
 
-export default class PeopleDirectoryWebPart extends BaseClientSideWebPart<IPeopleDirectoryWebPartProps> {
+export default class PeopleDirectoryWebPart
+  extends BaseClientSideWebPart<IPeopleDirectoryWebPartProps>
+  implements IDynamicDataCallables
+{
+  private _selectedDepartment: string = '';
+
+  protected onInit(): Promise<void> {
+    this.context.dynamicDataSourceManager.initializeSource(this);
+    return Promise.resolve();
+  }
+
+  public getPropertyDefinitions(): ReadonlyArray<IDynamicDataPropertyDefinition> {
+    return [
+      {
+        id: 'department',
+        title: 'Selected Department',
+      },
+    ];
+  }
+
+  public getPropertyValue(propertyId: string): string {
+    if (propertyId === 'department') {
+      return this._selectedDepartment;
+    }
+    return '';
+  }
+
+  private _onDepartmentSelected = (department: string): void => {
+    this._selectedDepartment = department;
+    this.context.dynamicDataSourceManager.notifyPropertyChanged('department');
+  };
+
   public render(): void {
     const element: React.ReactElement<IPeopleDirectoryProps> = React.createElement(
       PeopleDirectory,
       {
         context: this.context,
         showPresence: this.properties.showPresence !== false,
+        onDepartmentSelected: this._onDepartmentSelected,
       }
     );
 

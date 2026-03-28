@@ -46,6 +46,7 @@ export interface IOrgAnnouncementsProps {
   listName: string;
   maxItems: number;
   spHttpClient: SPHttpClient;
+  connectedDepartment?: string;
 }
 
 interface IAnnouncementListItem {
@@ -64,9 +65,15 @@ export const OrgAnnouncements: React.FC<IOrgAnnouncementsProps> = ({
   listName,
   maxItems,
   spHttpClient,
+  connectedDepartment,
 }) => {
   const styles = useStyles();
   const [departmentFilter, setDepartmentFilter] = useState<string>('All');
+
+  // When a connected web part provides a department, use it as the active filter
+  const activeDepartment = connectedDepartment && connectedDepartment !== 'All'
+    ? connectedDepartment
+    : departmentFilter;
 
   const query = `$select=Id,Title,Body,Department,Priority,ExpiryDate,Created,Author/Title&$expand=Author&$orderby=Created desc&$top=${maxItems}`;
 
@@ -99,10 +106,10 @@ export const OrgAnnouncements: React.FC<IOrgAnnouncementsProps> = ({
 
   const filteredAnnouncements = useMemo(
     () =>
-      departmentFilter === 'All'
+      activeDepartment === 'All'
         ? announcements
-        : announcements.filter((a) => a.department === departmentFilter),
-    [announcements, departmentFilter]
+        : announcements.filter((a) => a.department === activeDepartment),
+    [announcements, activeDepartment]
   );
 
   if (loading) return <LoadingSpinner label="Loading announcements..." />;
