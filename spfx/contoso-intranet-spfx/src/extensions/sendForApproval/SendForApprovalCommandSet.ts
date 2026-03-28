@@ -9,7 +9,7 @@ import {
   RowAccessor,
 } from '@microsoft/sp-listview-extensibility';
 import { Dialog } from '@microsoft/sp-dialog';
-import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+import { HttpClient, HttpClientResponse } from '@microsoft/sp-http';
 import { ApprovalDialog, IApprovalDialogProps } from './components/ApprovalDialog';
 
 export interface ISendForApprovalCommandSetProperties {
@@ -130,9 +130,9 @@ export default class SendForApprovalCommandSet extends BaseListViewCommandSet<IS
         listId: this.context.pageContext.list?.id?.toString(),
       });
 
-      const response: SPHttpClientResponse = await this.context.spHttpClient.post(
+      const response: HttpClientResponse = await this.context.httpClient.post(
         approvalFlowUrl,
-        SPHttpClient.configurations.v1,
+        HttpClient.configurations.v1,
         {
           headers: { 'Content-Type': 'application/json' },
           body,

@@ -16,7 +16,9 @@ import {
 export interface IClassificationHeaderProperties {}
 
 export default class ClassificationHeaderApplicationCustomizer extends BaseApplicationCustomizer<IClassificationHeaderProperties> {
-  private _topPlaceholder: PlaceholderContent | undefined;
+  // Uses PlaceholderName.Bottom to avoid conflict with GlobalNavigationApplicationCustomizer
+  // which uses PlaceholderName.Top for the mega menu
+  private _bottomPlaceholder: PlaceholderContent | undefined;
 
   @override
   public onInit(): Promise<void> {
@@ -29,14 +31,14 @@ export default class ClassificationHeaderApplicationCustomizer extends BaseAppli
   }
 
   private async _renderPlaceholders(): Promise<void> {
-    if (!this._topPlaceholder) {
-      this._topPlaceholder = this.context.placeholderProvider.tryCreateContent(
-        PlaceholderName.Top,
+    if (!this._bottomPlaceholder) {
+      this._bottomPlaceholder = this.context.placeholderProvider.tryCreateContent(
+        PlaceholderName.Bottom,
         { onDispose: this._onDispose.bind(this) }
       );
     }
 
-    if (!this._topPlaceholder || !this._topPlaceholder.domElement) return;
+    if (!this._bottomPlaceholder || !this._bottomPlaceholder.domElement) return;
 
     const classification = await this._getPageClassification();
 
@@ -50,7 +52,7 @@ export default class ClassificationHeaderApplicationCustomizer extends BaseAppli
         classification,
       });
 
-    ReactDom.render(element, this._topPlaceholder.domElement);
+    ReactDom.render(element, this._bottomPlaceholder.domElement);
   }
 
   private async _getPageClassification(): Promise<ClassificationLevel | null> {
@@ -89,8 +91,8 @@ export default class ClassificationHeaderApplicationCustomizer extends BaseAppli
   }
 
   private _onDispose(): void {
-    if (this._topPlaceholder?.domElement) {
-      ReactDom.unmountComponentAtNode(this._topPlaceholder.domElement);
+    if (this._bottomPlaceholder?.domElement) {
+      ReactDom.unmountComponentAtNode(this._bottomPlaceholder.domElement);
     }
   }
 }

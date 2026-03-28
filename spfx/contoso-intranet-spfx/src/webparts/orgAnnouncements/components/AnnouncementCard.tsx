@@ -40,7 +40,7 @@ const useStyles = makeStyles({
   lowPriority: {
     borderLeftWidth: '4px',
     borderLeftStyle: 'solid',
-    borderLeftColor: tokens.colorPaletteBlueBorder2,
+    borderLeftColor: tokens.colorPaletteBlueBorderActive,
   },
   body: {
     overflow: 'hidden',
