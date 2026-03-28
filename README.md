@@ -133,13 +133,12 @@ contoso-intranet-hub/
 
 | Phase | Scope | Status |
 |---|---|---|
-| **Phase 1** | Foundation: docs, architecture, provisioning scripts, governance | In Progress |
-| **Phase 2** | SPFx web parts: Mega Menu, Announcements, Search, Dashboard | Not Started |
-| **Phase 3** | SPFx extensions: Header, Footer, Analytics Tracker | Not Started |
-| **Phase 4** | ACEs: My Tasks, Company News | Not Started |
-| **Phase 5** | Command Set: Document Actions | Not Started |
-| **Phase 6** | Power Automate flows: document approval, notifications | Not Started |
-| **Phase 7** | Testing, CI/CD pipeline, production hardening | Not Started |
+| **Phase 1** | Foundation: docs, architecture, provisioning scripts, governance | Complete |
+| **Phase 2** | Testing foundation: 104 tests, ESLint, CI/CD hardening, Graph API permissions | Complete |
+| **Phase 3** | Component tests (162 total), bug fixes (HttpClient, placeholder conflict) | Complete |
+| **Phase 4** | Power Automate: 4 flow definitions (approval, permissions, reminders, expiry) | Complete |
+| **Phase 5** | Accessibility (keyboard nav, ARIA), localization, shared utilities, polish | Complete |
+| **Phase 6** | Advanced patterns: connected web parts, performance, deployment docs | Planned |
 
 ## Getting Started
 
