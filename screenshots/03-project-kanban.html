@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contoso Intranet - Project Status</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: #f5f5f5; color: #242424; }
+  .sp-header { background: #0078d4; color: white; display: flex; align-items: center; height: 48px; padding: 0 20px; justify-content: space-between; }
+  .sp-header .logo { font-weight: 600; font-size: 16px; }
+  .sp-header .user { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .sp-header .avatar { width: 32px; height: 32px; border-radius: 50%; background: #005a9e; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+  .hub-nav { background: #106ebe; color: white; display: flex; align-items: center; height: 40px; padding: 0 20px; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .hub-nav .nav-item { padding: 8px 14px; font-size: 13px; color: white; text-decoration: none; border-radius: 4px; }
+  .hub-nav .nav-item.active { background: rgba(255,255,255,0.18); font-weight: 600; }
+
+  .page { max-width: 1400px; margin: 0 auto; padding: 24px 20px; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .page-title { font-size: 24px; font-weight: 600; }
+  .view-toggle { display: flex; gap: 2px; background: #e8e8e8; border-radius: 6px; padding: 2px; }
+  .view-btn { padding: 6px 16px; border-radius: 4px; font-size: 13px; border: none; cursor: pointer; background: transparent; color: #616161; }
+  .view-btn.active { background: white; color: #242424; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+
+  /* Kanban */
+  .kanban { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; min-height: 500px; }
+  .kanban-col { background: #f0f0f0; border-radius: 8px; padding: 12px; }
+  .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid; }
+  .col-header.proposed { border-color: #8a8886; }
+  .col-header.active { border-color: #0078d4; }
+  .col-header.on-hold { border-color: #ca5010; }
+  .col-header.completed { border-color: #107c10; }
+  .col-header.cancelled { border-color: #d13438; }
+  .col-title { font-weight: 600; font-size: 13px; }
+  .col-count { background: #d1d1d1; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+
+  .project-card { background: white; border-radius: 6px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+  .project-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  .project-name { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .project-dept { font-size: 11px; color: #8a8886; margin-bottom: 8px; }
+  .progress-bar { background: #e8e8e8; border-radius: 4px; height: 6px; margin-bottom: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; }
+  .progress-fill.blue { background: #0078d4; }
+  .progress-fill.green { background: #107c10; }
+  .progress-fill.orange { background: #ca5010; }
+  .project-meta { display: flex; justify-content: space-between; font-size: 11px; color: #8a8886; }
+  .project-priority { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 8px; }
+  .project-priority.high { background: #fde7e9; color: #d13438; }
+  .project-priority.medium { background: #fff4ce; color: #8a6400; }
+  .project-priority.low { background: #e8f4fd; color: #0078d4; }
+</style>
+</head>
+<body>
+  <div class="sp-header">
+    <div class="logo">&#127760; Contoso Intranet</div>
+    <div class="user"><span>Jane Doe</span><div class="avatar">JD</div></div>
+  </div>
+  <div class="hub-nav">
+    <a class="nav-item">Home</a>
+    <a class="nav-item">Documents &#9662;</a>
+    <a class="nav-item active">Projects &#9662;</a>
+    <a class="nav-item">Knowledge Base &#9662;</a>
+    <a class="nav-item">HR Portal</a>
+    <a class="nav-item">IT Support</a>
+  </div>
+
+  <div class="page">
+    <div class="page-header">
+      <span class="page-title">Project Status Dashboard</span>
+      <div class="view-toggle">
+        <button class="view-btn active">&#9638; Kanban</button>
+        <button class="view-btn">&#9776; Table</button>
+      </div>
+    </div>
+
+    <div class="kanban">
+      <!-- Proposed -->
+      <div class="kanban-col">
+        <div class="col-header proposed">
+          <span class="col-title">Proposed</span>
+          <span class="col-count">2</span>
+        </div>
+        <div class="project-card">
+          <div class="project-name">AI-Powered Knowledge Search</div>
+          <div class="project-dept">IT &bull; Innovation</div>
+          <div class="progress-bar"><div class="progress-fill blue" style="width:10%"></div></div>
+          <div class="project-meta"><span class="project-priority medium">Medium</span><span>Due: Jun 2026</span></div>
+        </div>
+        <div class="project-card">
+          <div class="project-name">Employee Wellness Program</div>
+          <div class="project-dept">HR &bull; Culture</div>
+          <div class="progress-bar"><div class="progress-fill blue" style="width:5%"></div></div>
+          <div class="project-meta"><span class="project-priority low">Low</span><span>Due: Aug 2026</span></div>
+        </div>
+      </div>
+
+      <!-- Active -->
+      <div class="kanban-col">
+        <div class="col-header active">
+          <span class="col-title">Active</span>
+          <span class="col-count">4</span>
+        </div>
+        <div class="project-card">
+          <div class="project-name">Intranet Hub Rollout</div>
+          <div class="project-dept">IT &bull; Infrastructure</div>
+          <div class="progress-bar"><div class="progress-fill blue" style="width:72%"></div></div>
+          <div class="project-meta"><span class="project-priority high">High</span><span>Due: Apr 2026</span></div>
+        </div>
+        <div class="project-card">
+          <div class="project-name">Q2 Marketing Campaign</div>
+          <div class="project-dept">Marketing &bull; Brand</div>
+          <div class="progress-bar"><div class="progress-fill blue" style="width:45%"></div></div>
+          <div class="project-meta"><span class="project-priority high">High</span><span>Due: May 2026</span></div>
+        </div>
+        <div class="project-card">
+          <div class="project-name">SOC 2 Compliance Audit</div>
+          <div class="project-dept">IT &bull; Security</div>
+          <div class="progress-bar"><div class="progress-fill orange" style="width:60%"></div></div>
+          <div class="project-meta"><span class="project-priority high">High</span><span>Due: Apr 2026</span></div>
+        </div>
+        <div class="project-card">
+          <div class="project-name">Vendor Management Portal</div>
+          <div class="project-dept">Procurement &bull; Digital</div>
+          <div class="progress-bar"><div class="progress-fill blue" style="width:35%"></div></div>
+          <div class="project-meta"><span class="project-priority medium">Medium</span><span>Due: Jul 2026</span></div>
+        </div>
+      </div>
+
+      <!-- On Hold -->
+      <div class="kanban-col">
+        <div class="col-header on-hold">
+          <span class="col-title">On Hold</span>
+          <span class="col-count">1</span>
+        </div>
+        <div class="project-card">
+          <div class="project-name">Office Space Redesign</div>
+          <div class="project-dept">Operations &bull; Facilities</div>
+          <div class="progress-bar"><div class="progress-fill orange" style="width:30%"></div></div>
+          <div class="project-meta"><span class="project-priority medium">Medium</span><span>Due: TBD</span></div>
+        </div>
+      </div>
+
+      <!-- Completed -->
+      <div class="kanban-col">
+        <div class="col-header completed">
+          <span class="col-title">Completed</span>
+          <span class="col-count">3</span>
+        </div>
+        <div class="project-card">
+          <div class="project-name">2025 Annual Report</div>
+          <div class="project-dept">Finance &bull; Reporting</div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div>
+          <div class="project-meta"><span class="project-priority high">High</span><span>Feb 2026</span></div>
+        </div>
+        <div class="project-card">
+          <div class="project-name">New Hire Onboarding v2</div>
+          <div class="project-dept">HR &bull; Talent</div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div>
+          <div class="project-meta"><span class="project-priority medium">Medium</span><span>Jan 2026</span></div>
+        </div>
+        <div class="project-card">
+          <div class="project-name">Data Center Migration</div>
+          <div class="project-dept">IT &bull; Infrastructure</div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div>
+          <div class="project-meta"><span class="project-priority high">High</span><span>Dec 2025</span></div>
+        </div>
+      </div>
+
+      <!-- Cancelled -->
+      <div class="kanban-col">
+        <div class="col-header cancelled">
+          <span class="col-title">Cancelled</span>
+          <span class="col-count">1</span>
+        </div>
+        <div class="project-card">
+          <div class="project-name">Legacy CRM Integration</div>
+          <div class="project-dept">IT &bull; Applications</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0%; background:#d1d1d1"></div></div>
+          <div class="project-meta"><span class="project-priority low">Low</span><span>Cancelled</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

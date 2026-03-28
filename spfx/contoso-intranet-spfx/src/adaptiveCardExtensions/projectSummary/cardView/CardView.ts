@@ -13,7 +13,7 @@ export class CardView extends BasePrimaryTextCardView<
   IProjectSummaryProperties,
   IProjectSummaryState
 > {
-  public get cardButtons(): (ICardButton | undefined)[] {
+  public get cardButtons(): [ICardButton] | [ICardButton, ICardButton] | undefined {
     return [
       {
         title: 'View Breakdown',

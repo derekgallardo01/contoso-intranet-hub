@@ -7,24 +7,47 @@ import {
   PropertyPaneSlider,
 } from '@microsoft/sp-webpart-base';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-import {
-  DynamicProperty,
-  IWebPartPropertiesMetadata,
-} from '@microsoft/sp-dynamic-data';
 import { OrgAnnouncements, IOrgAnnouncementsProps } from './components/OrgAnnouncements';
 
 export interface IOrgAnnouncementsWebPartProps {
   siteUrl: string;
   listName: string;
   maxItems: number;
-  department: DynamicProperty<string>;
 }
 
 export default class OrgAnnouncementsWebPart extends BaseClientSideWebPart<IOrgAnnouncementsWebPartProps> {
-  public render(): void {
-    // Read dynamic department filter from connected web part (if available)
-    const dynamicDepartment = this.properties.department?.tryGetValue();
+  private _connectedDepartment: string | undefined;
 
+  protected onInit(): Promise<void> {
+    // Listen for dynamic data from connected web parts (e.g., PeopleDirectory)
+    this.context.dynamicDataProvider.registerAvailableSourcesChanged(() => {
+      this._tryGetConnectedDepartment();
+      this.render();
+    });
+    return Promise.resolve();
+  }
+
+  private _tryGetConnectedDepartment(): void {
+    try {
+      const sources = this.context.dynamicDataProvider.getAvailableSources();
+      for (const source of sources) {
+        const props = source.getPropertyDefinitions();
+        const deptProp = props.find((p: { id: string }) => p.id === 'department');
+        if (deptProp) {
+          const value = source.getPropertyValue('department');
+          if (typeof value === 'string' && value !== 'All') {
+            this._connectedDepartment = value;
+            return;
+          }
+        }
+      }
+    } catch {
+      // No connected source available
+    }
+    this._connectedDepartment = undefined;
+  }
+
+  public render(): void {
     const element: React.ReactElement<IOrgAnnouncementsProps> = React.createElement(
       OrgAnnouncements,
       {
@@ -32,19 +55,11 @@ export default class OrgAnnouncementsWebPart extends BaseClientSideWebPart<IOrgA
         listName: this.properties.listName || 'Announcements',
         maxItems: this.properties.maxItems || 10,
         spHttpClient: this.context.spHttpClient,
-        connectedDepartment: dynamicDepartment || undefined,
+        connectedDepartment: this._connectedDepartment,
       }
     );
 
     ReactDom.render(element, this.domElement);
-  }
-
-  protected get propertiesMetadata(): IWebPartPropertiesMetadata {
-    return {
-      'department': {
-        dynamicPropertyType: 'string',
-      },
-    };
   }
 
   protected onDispose(): void {

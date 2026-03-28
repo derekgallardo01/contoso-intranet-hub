@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contoso Intranet - Document Approval</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: #f5f5f5; color: #242424; }
+  .sp-header { background: #0078d4; color: white; display: flex; align-items: center; height: 48px; padding: 0 20px; justify-content: space-between; }
+  .sp-header .logo { font-weight: 600; font-size: 16px; }
+  .sp-header .user { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .sp-header .avatar { width: 32px; height: 32px; border-radius: 50%; background: #005a9e; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+  .hub-nav { background: #106ebe; color: white; display: flex; align-items: center; height: 40px; padding: 0 20px; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .hub-nav .nav-item { padding: 8px 14px; font-size: 13px; color: white; text-decoration: none; border-radius: 4px; }
+  .hub-nav .nav-item.active { background: rgba(255,255,255,0.18); font-weight: 600; }
+
+  /* Classification Banner - Confidential */
+  .classification-banner { background: #ca5010; color: white; text-align: center; padding: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+  /* Command bar */
+  .command-bar { background: white; border-bottom: 1px solid #e8e8e8; padding: 8px 20px; display: flex; align-items: center; gap: 8px; }
+  .cmd-btn { padding: 6px 14px; border: 1px solid #d1d1d1; border-radius: 4px; font-size: 13px; background: white; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .cmd-btn:hover { background: #f5f5f5; }
+  .cmd-btn.primary { background: #0078d4; color: white; border-color: #0078d4; }
+  .cmd-btn.primary:hover { background: #106ebe; }
+
+  /* Doc library */
+  .page { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+  .library { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .library table { width: 100%; border-collapse: collapse; }
+  .library th { background: #fafafa; padding: 10px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #616161; border-bottom: 1px solid #e8e8e8; }
+  .library td { padding: 10px 16px; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+  .library tr.selected td { background: #e8f4fd; }
+  .library tr:hover td { background: #f5f9fc; }
+  .checkbox { width: 16px; height: 16px; accent-color: #0078d4; }
+  .file-link { color: #0078d4; text-decoration: none; font-weight: 500; }
+  .badge-sm { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .badge-sm.confidential { background: #fff4ce; color: #8a6400; }
+  .badge-sm.approved { background: #e7f5e7; color: #107c10; }
+  .badge-sm.draft { background: #e8e8e8; color: #616161; }
+  .badge-sm.pending { background: #e8f4fd; color: #0078d4; }
+
+  /* Dialog overlay */
+  .dialog-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+  .dialog { background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.25); width: 480px; padding: 24px; }
+  .dialog-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+  .dialog-body { margin-bottom: 20px; }
+  .dialog-body p { font-size: 14px; margin-bottom: 12px; line-height: 1.5; }
+  .dialog-body .filename { color: #0078d4; font-weight: 600; }
+  .dialog-body textarea { width: 100%; border: 1px solid #d1d1d1; border-radius: 6px; padding: 10px; font-size: 13px; font-family: 'Segoe UI', sans-serif; resize: vertical; min-height: 80px; }
+  .dialog-body textarea::placeholder { color: #8a8886; }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .dialog-actions .btn { padding: 8px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; }
+  .dialog-actions .btn.secondary { background: #f0f0f0; color: #242424; }
+  .dialog-actions .btn.secondary:hover { background: #e0e0e0; }
+  .dialog-actions .btn.primary { background: #0078d4; color: white; }
+  .dialog-actions .btn.primary:hover { background: #106ebe; }
+</style>
+</head>
+<body>
+  <div class="sp-header">
+    <div class="logo">&#127760; Contoso Intranet</div>
+    <div class="user"><span>Jane Doe</span><div class="avatar">JD</div></div>
+  </div>
+  <div class="hub-nav">
+    <a class="nav-item">Home</a>
+    <a class="nav-item active">Documents &#9662;</a>
+    <a class="nav-item">Projects &#9662;</a>
+    <a class="nav-item">Knowledge Base &#9662;</a>
+  </div>
+  <div class="classification-banner">&#128737; CONFIDENTIAL &mdash; Handle according to data classification policy</div>
+
+  <div class="command-bar">
+    <button class="cmd-btn">&#128194; New</button>
+    <button class="cmd-btn">&#8679; Upload</button>
+    <button class="cmd-btn primary">&#10003; Send for Approval</button>
+    <button class="cmd-btn">&#128279; Share</button>
+    <button class="cmd-btn">&#128465; Delete</button>
+  </div>
+
+  <div class="page">
+    <div class="library">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30px;"><input type="checkbox" class="checkbox" /></th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Classification</th>
+            <th>Approval Status</th>
+            <th>Modified</th>
+            <th>Modified By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox" class="checkbox" /></td>
+            <td><a class="file-link">Information-Security-Policy-v4.pdf</a></td>
+            <td>IT</td>
+            <td><span class="badge-sm confidential">Confidential</span></td>
+            <td><span class="badge-sm approved">Approved</span></td>
+            <td>Mar 18, 2026</td>
+            <td>Alex Kim</td>
+          </tr>
+          <tr class="selected">
+            <td><input type="checkbox" class="checkbox" checked /></td>
+            <td><a class="file-link">Data-Retention-SOP-2026.docx</a></td>
+            <td>Legal</td>
+            <td><span class="badge-sm confidential">Confidential</span></td>
+            <td><span class="badge-sm draft">Draft</span></td>
+            <td>Mar 22, 2026</td>
+            <td>Jane Doe</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="checkbox" /></td>
+            <td><a class="file-link">Vendor-NDA-Template.docx</a></td>
+            <td>Legal</td>
+            <td><span class="badge-sm confidential">Confidential</span></td>
+            <td><span class="badge-sm approved">Approved</span></td>
+            <td>Mar 15, 2026</td>
+            <td>Sarah Chen</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="checkbox" /></td>
+            <td><a class="file-link">Incident-Response-Playbook.pdf</a></td>
+            <td>IT</td>
+            <td><span class="badge-sm confidential">Confidential</span></td>
+            <td><span class="badge-sm pending">Pending Review</span></td>
+            <td>Mar 20, 2026</td>
+            <td>Alex Kim</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="checkbox" /></td>
+            <td><a class="file-link">Employee-Handbook-2026.pdf</a></td>
+            <td>HR</td>
+            <td><span class="badge-sm confidential">Confidential</span></td>
+            <td><span class="badge-sm approved">Approved</span></td>
+            <td>Mar 10, 2026</td>
+            <td>Rachel Wang</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Approval Dialog -->
+  <div class="dialog-overlay">
+    <div class="dialog">
+      <div class="dialog-title">Send for Approval</div>
+      <div class="dialog-body">
+        <p>Send <span class="filename">Data-Retention-SOP-2026.docx</span> for approval?</p>
+        <textarea placeholder="Add notes for the approver (optional)...">Please review the updated retention periods in Section 3. Legal team requested changes based on the new EU compliance requirements.</textarea>
+      </div>
+      <div class="dialog-actions">
+        <button class="btn secondary">Cancel</button>
+        <button class="btn primary">Submit</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

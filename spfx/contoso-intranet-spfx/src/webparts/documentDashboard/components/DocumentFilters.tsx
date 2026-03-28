@@ -71,11 +71,11 @@ export const DocumentFilters: React.FC<IDocumentFiltersProps> = ({
             handleFilterSelect(refiner.name, data.optionValue)
           }
         >
-          <Option key="__all__" value="__all__">
+          <Option key="__all__" value="__all__" text={`All ${refinerLabels[refiner.name] || refiner.name}s`}>
             All {refinerLabels[refiner.name] || refiner.name}s
           </Option>
           {refiner.entries.map((entry) => (
-            <Option key={entry.value} value={entry.value}>
+            <Option key={entry.value} value={entry.value} text={`${entry.value} (${entry.count})`}>
               {entry.value} ({entry.count})
             </Option>
           ))}
