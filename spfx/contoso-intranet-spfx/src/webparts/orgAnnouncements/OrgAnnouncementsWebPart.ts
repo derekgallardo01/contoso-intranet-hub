@@ -7,16 +7,24 @@ import {
   PropertyPaneSlider,
 } from '@microsoft/sp-webpart-base';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
+import {
+  DynamicProperty,
+  IWebPartPropertiesMetadata,
+} from '@microsoft/sp-dynamic-data';
 import { OrgAnnouncements, IOrgAnnouncementsProps } from './components/OrgAnnouncements';
 
 export interface IOrgAnnouncementsWebPartProps {
   siteUrl: string;
   listName: string;
   maxItems: number;
+  department: DynamicProperty<string>;
 }
 
 export default class OrgAnnouncementsWebPart extends BaseClientSideWebPart<IOrgAnnouncementsWebPartProps> {
   public render(): void {
+    // Read dynamic department filter from connected web part (if available)
+    const dynamicDepartment = this.properties.department?.tryGetValue();
+
     const element: React.ReactElement<IOrgAnnouncementsProps> = React.createElement(
       OrgAnnouncements,
       {
@@ -24,10 +32,19 @@ export default class OrgAnnouncementsWebPart extends BaseClientSideWebPart<IOrgA
         listName: this.properties.listName || 'Announcements',
         maxItems: this.properties.maxItems || 10,
         spHttpClient: this.context.spHttpClient,
+        connectedDepartment: dynamicDepartment || undefined,
       }
     );
 
     ReactDom.render(element, this.domElement);
+  }
+
+  protected get propertiesMetadata(): IWebPartPropertiesMetadata {
+    return {
+      'department': {
+        dynamicPropertyType: 'string',
+      },
+    };
   }
 
   protected onDispose(): void {

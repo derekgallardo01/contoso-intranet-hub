@@ -7,6 +7,7 @@ import {
   Input,
   Dropdown,
   Option,
+  Button,
   FluentProvider,
   webLightTheme,
 } from '@fluentui/react-components';
@@ -21,6 +22,8 @@ import { PersonDetailPanel } from './PersonDetailPanel';
 import { LoadingSpinner } from '../../../common/components/LoadingSpinner';
 import { EmptyState } from '../../../common/components/EmptyState';
 import { ErrorBoundary } from '../../../common/components/ErrorBoundary';
+
+const PAGE_SIZE = 20;
 
 const useStyles = makeStyles({
   container: {
@@ -53,26 +56,38 @@ const useStyles = makeStyles({
     gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
     gap: tokens.spacingVerticalM,
   },
+  loadMore: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: tokens.spacingVerticalM,
+  },
+  resultCount: {
+    color: tokens.colorNeutralForeground3,
+  },
 });
 
 export interface IPeopleDirectoryProps {
   context: WebPartContext;
   showPresence: boolean;
+  onDepartmentSelected?: (department: string) => void;
 }
 
 export const PeopleDirectory: React.FC<IPeopleDirectoryProps> = ({
   context,
   showPresence,
+  onDepartmentSelected,
 }) => {
   const styles = useStyles();
   const [people, setPeople] = useState<IPerson[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [searchText, setSearchText] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('All');
   const [letterFilter, setLetterFilter] = useState<string | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<IPerson | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const graphServiceRef = useRef<GraphService | null>(null);
 
@@ -85,20 +100,31 @@ export const PeopleDirectory: React.FC<IPeopleDirectoryProps> = ({
   }, [context]);
 
   const fetchPeople = useCallback(
-    async (search?: string, department?: string) => {
+    async (search?: string, department?: string, append: boolean = false) => {
       try {
-        setLoading(true);
-        setError(null);
+        if (append) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+          setError(null);
+        }
         const service = await initGraphService();
         const users = await service.getUsers(
           search || undefined,
           department && department !== 'All' ? department : undefined
         );
-        setPeople(users);
+
+        if (append) {
+          setPeople((prev) => [...prev, ...users]);
+        } else {
+          setPeople(users);
+        }
+        setHasMore(users.length >= PAGE_SIZE);
       } catch (err) {
         setError(err instanceof Error ? err : new Error(String(err)));
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     },
     [initGraphService]
@@ -126,8 +152,13 @@ export const PeopleDirectory: React.FC<IPeopleDirectoryProps> = ({
       const dept = data.optionValue || 'All';
       setDepartmentFilter(dept);
       fetchPeople(searchText, dept).catch(() => {});
+
+      // Notify connected web parts about the department selection
+      if (onDepartmentSelected) {
+        onDepartmentSelected(dept);
+      }
     },
-    [fetchPeople, searchText]
+    [fetchPeople, searchText, onDepartmentSelected]
   );
 
   const handleLetterClick = useCallback((letter: string | null) => {
@@ -135,10 +166,22 @@ export const PeopleDirectory: React.FC<IPeopleDirectoryProps> = ({
     setSearchText('');
   }, []);
 
-  const handlePersonClick = useCallback((person: IPerson) => {
-    setSelectedPerson(person);
-    setIsPanelOpen(true);
-  }, []);
+  const handlePersonClick = useCallback(
+    (person: IPerson) => {
+      setSelectedPerson(person);
+      setIsPanelOpen(true);
+
+      // Notify connected web parts about the selected person's department
+      if (onDepartmentSelected && person.department) {
+        onDepartmentSelected(person.department);
+      }
+    },
+    [onDepartmentSelected]
+  );
+
+  const handleLoadMore = useCallback(() => {
+    fetchPeople(searchText, departmentFilter, true).catch(() => {});
+  }, [fetchPeople, searchText, departmentFilter]);
 
   const departments = useMemo(() => {
     const depts = new Set(people.map((p) => p.department).filter(Boolean));
@@ -160,21 +203,26 @@ export const PeopleDirectory: React.FC<IPeopleDirectoryProps> = ({
             <Text size={600} weight="bold">
               People Directory
             </Text>
+            <Text size={200} className={styles.resultCount}>
+              {filteredPeople.length} {filteredPeople.length === 1 ? 'person' : 'people'}
+            </Text>
           </div>
 
-          <div className={styles.searchBar}>
+          <div className={styles.searchBar} role="search" aria-label="People search">
             <Input
               className={styles.searchInput}
               placeholder="Search people..."
               contentBefore={<SearchRegular />}
               value={searchText}
               onChange={handleSearchChange}
+              aria-label="Search by name or email"
             />
             <Dropdown
               className={styles.departmentFilter}
               placeholder="Filter by department"
               value={departmentFilter}
               onOptionSelect={handleDepartmentChange}
+              aria-label="Filter by department"
             >
               {departments.map((dept) => (
                 <Option key={dept} value={dept}>
@@ -201,16 +249,29 @@ export const PeopleDirectory: React.FC<IPeopleDirectoryProps> = ({
           ) : filteredPeople.length === 0 ? (
             <EmptyState message="No people found" description="Try a different search or filter" />
           ) : (
-            <div className={styles.grid}>
-              {filteredPeople.map((person) => (
-                <PersonCard
-                  key={person.id}
-                  person={person}
-                  showPresence={showPresence}
-                  onClick={handlePersonClick}
-                />
-              ))}
-            </div>
+            <>
+              <div className={styles.grid} role="list" aria-label="People results">
+                {filteredPeople.map((person) => (
+                  <PersonCard
+                    key={person.id}
+                    person={person}
+                    showPresence={showPresence}
+                    onClick={handlePersonClick}
+                  />
+                ))}
+              </div>
+              {hasMore && (
+                <div className={styles.loadMore}>
+                  <Button
+                    appearance="outline"
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                  >
+                    {loadingMore ? 'Loading...' : 'Load More'}
+                  </Button>
+                </div>
+              )}
+            </>
           )}
 
           <PersonDetailPanel

@@ -14,6 +14,7 @@ import { MegaMenu, IMegaMenuProps } from './components/MegaMenu';
 export interface IGlobalNavigationProperties {
   siteUrl: string;
   listName: string;
+  cacheDurationMinutes: number;
 }
 
 interface INavListItem {
@@ -85,7 +86,8 @@ export default class GlobalNavigationApplicationCustomizer extends BaseApplicati
       const items: INavListItem[] = data.value || [];
 
       const nodes = this._buildNavTree(items);
-      this._cacheService.set(cacheKey, nodes, 30);
+      const cacheDuration = this.properties.cacheDurationMinutes || 30;
+      this._cacheService.set(cacheKey, nodes, cacheDuration);
       return nodes;
     } catch {
       return [];
