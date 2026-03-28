@@ -16,6 +16,7 @@ import {
   PersonRegular,
 } from '@fluentui/react-icons';
 import { IAnnouncement, AnnouncementPriority } from '../../../models/IAnnouncement';
+import { formatDate } from '../../../common/utils/formatDate';
 
 const useStyles = makeStyles({
   card: {
@@ -86,19 +87,6 @@ export const AnnouncementCard: React.FC<IAnnouncementCardProps> = ({ announcemen
     : announcement.priority === 'Medium'
     ? styles.mediumPriority
     : styles.lowPriority;
-
-  const formatDate = (dateStr: string): string => {
-    if (!dateStr) return '';
-    try {
-      return new Date(dateStr).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    } catch {
-      return dateStr;
-    }
-  };
 
   const stripHtml = (html: string): string => {
     const tmp = document.createElement('div');
